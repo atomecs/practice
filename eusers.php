@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Изменить пользователя</h1>
-    <form method="POST" action="/eusers.php">
+    <form method="POST" action="/edituserphp.php">
         <input class="form-control" type="text" name="id"
                placeholder="ID">
         <br>
@@ -30,22 +30,3 @@
 </div>
 </body>
 </html>
-<?php
-require_once('db.php');
-$cn = pg_connect("host=localhost port=5432 dbname=train
-    user=postgres password = daniil2018");
-if (isset($_POST['submit'])) {
-    $id = $_POST['id'];
-    $username = $_POST['username'];
-    if (!$username) die("Please, input all
-values!");
-    echo $id;
-    $query = "UPDATE users SET fio='$username' WHERE id='$id'";
-    if($result = pg_query($query)){
-        echo "Data Added Successfully.";
-    }
-    else{
-        echo "Error.";
-    }
-}
-?>

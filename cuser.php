@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+global$cn; <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Создание пользователя</h1>
-    <form method="POST" action="/cuser.php">
+    <form method="POST" action="createuserphp.php">
         <input class="form-control" type="text" name="username"
                placeholder="Username">
         <br>
@@ -25,21 +25,3 @@
 </div>
 </body>
 </html>
-<?php
-require_once('db.php');
-    $cn = pg_connect("host=localhost port=5432 dbname=train
-    user=postgres password = daniil2018");
-if (isset($_POST['submit'])) {
-    $username = $_POST['username'];
-    if (!$username) die("Please, input all
-values!");
-    $query = "INSERT INTO users(fio) 
-	 values ('$username')";
-    if($result = pg_query($query)){
-        echo "Data Added Successfully.";
-    }
-    else{
-        echo "Error.";
-    }
-}
-?>

@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Изменить задачу</h1>
-    <form method="POST" action="/etasks.php">
+    <form method="POST" action="/edittaskphp.php">
         <input class="form-control" type="text" name="id"
                placeholder="ID">
         <input class="form-control" type="text" name="describe"
@@ -26,59 +26,10 @@
                placeholder="Deadline">
         <br>
         <br>
-        <?php
-        require_once('db.php');
-        $cn = pg_connect("host=localhost port=5432 dbname=train
-            user=postgres password = daniil2018");
-        $res = pg_query($cn, "SELECT prioritet FROM prioritets");
-        $r = '<select name="select1" size="1">';
-        $i = 1;
-        while ($row = pg_fetch_row($res)) {
-            $r .= '<option value="'.$row[0].'">'.$row[0].'</option>';
-            $i+= 1;
-        }
-        $r .= '</select><br><br>';
-        echo $r;
-        ?>
-        <?php
-        require_once('db.php');
-        $cn = pg_connect("host=localhost port=5432 dbname=train
-            user=postgres password = daniil2018");
-        $res = pg_query($cn, "SELECT fio FROM users");
-        $r = '<select name="select2" size="1">';
-        $i = 1;
-        while ($row = pg_fetch_row($res)) {
-            $r .= '<option value="'.$row[0].'">'.$row[0].'</option>';
-            $i+= 1;
-        }
-        $r .= '</select><br><br>';
-        echo $r;
-        ?>
+        <?php include 'printforcreatetasksphp.php'; ?>
         <button type="submit" class="btn btn-success"
                 name="submit">Продолжить</button>
     </form>
 </div>
 </body>
 </html>
-<?php
-require_once('db.php');
-$cn = pg_connect("host=localhost port=5432 dbname=train
-    user=postgres password = daniil2018");
-if (isset($_POST['submit'])) {
-    $id = $_POST['id'];
-    $describe = $_POST['describe'];
-    $deadline = $_POST['deadline'];
-    $select1 = $_POST['select1'];
-    $select2 = $_POST['select2'];
-    if (!$describe || !$deadline|| !$select1 || !$select2) die("Please, input all
-values!");
-    echo $id;
-    $query = "UPDATE tasks SET describe='$describe', dedline = '$deadline', fk_prioritet = (SELECT id FROM prioritets WHERE prioritet = '$select1'), fk_tasks_users = (SELECT id FROM users WHERE fio = '$select2') WHERE id='$id'";
-    if($result = pg_query($query)){
-        echo "Data Added Successfully.";
-    }
-    else{
-        echo "Error.";
-    }
-}
-?>
