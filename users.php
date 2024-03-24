@@ -6,8 +6,8 @@
 </head>
 <body>
 <h2>Список пользователей</h2>
-<form method="POST" action="/deleteusersphp.php">
-    <?php include 'printusersphp.php'; ?>
+<form method="POST" action="/deleteUsersPhp.php">
+    <?php include 'printUsersPhp.php'; ?>
     <button type="submit" class="btn btn-success"
             name="submit">Продолжить
     </button>

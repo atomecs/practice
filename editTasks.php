@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Изменить задачу</h1>
-    <form method="POST" action="/edittaskphp.php">
+    <form method="POST" action="/editTaskPhp.php">
         <input class="form-control" type="text" name="id"
                placeholder="ID">
         <input class="form-control" type="text" name="describe"
@@ -26,7 +26,7 @@
                placeholder="Deadline">
         <br>
         <br>
-        <?php include 'printforcreatetasksphp.php'; ?>
+        <?php include 'printForCreateTasksPhp.php'; ?>
         <button type="submit" class="btn btn-success"
                 name="submit">Продолжить
         </button>

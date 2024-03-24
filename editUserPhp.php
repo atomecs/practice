@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'dataBase.php';
 if (isset($_POST['submit'])) {
     $id = $_POST['id'];
     $username = $_POST['username'];
@@ -9,9 +9,9 @@ values!");
     }
 
     $query = "UPDATE users SET fio=? WHERE id=?";
-    $stmt = $cn->prepare($query);
+    $stmt = $connect->prepare($query);
     $stmt->execute(array($username, $id));
 
 }
-header('Location: editusers.php');
+header('Location: editUsers.php');
 exit;

@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Изменить пользователя</h1>
-    <form method="POST" action="/edituserphp.php">
+    <form method="POST" action="/editUserPhp.php">
         <input class="form-control" type="text" name="id"
                placeholder="ID">
         <br>
