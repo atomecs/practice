@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,
     initial-scale=1.0">
-    <title>Изменить задачу</title>
+    <title>Создать пользователя</title>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.m
     in.css"
@@ -14,21 +14,16 @@
 </head>
 <body>
 <div class="container mt-4" align="center">
-    <h1>Изменить задачу</h1>
-    <form method="POST" action="/edittaskphp.php">
-        <input class="form-control" type="text" name="id"
-               placeholder="ID">
-        <input class="form-control" type="text" name="describe"
-               placeholder="Describe">
+    <h1>Создание пользователя</h1>
+    <form method="POST" action="createuserphp.php">
+        <label>
+            <input class="form-control" type="text" name="username"
+                   placeholder="Username">
+        </label>
         <br>
-        <br>
-        <input class="form-control" type="date" name="deadline"
-               placeholder="Deadline">
-        <br>
-        <br>
-        <?php include 'printforcreatetasksphp.php'; ?>
         <button type="submit" class="btn btn-success"
-                name="submit">Продолжить</button>
+                name="submit">Продолжить
+        </button>
     </form>
 </div>
 </body>

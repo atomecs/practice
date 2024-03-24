@@ -1,15 +1,9 @@
 <?php
-
-$dbhost = 'localhost';
-$dbname = 'train';
-$dbuser = 'postgres';
-$dbpassword = 'daniil2018';
-$cn = new PDO("pgsql:host=$dbhost;dbname=$dbname", $dbuser, $dbpassword);
-
-
+include 'db.php';
 if (isset($_POST['submit'])) {
     $username = $_POST['username'];
-    if (!$username){
+    echo $username;
+    if (empty($username)) {
         die("Please, input all
 values!");
     }
@@ -18,5 +12,5 @@ values!");
     $stmt = $cn->prepare($query);
     $stmt->execute(array($username));
 }
-header('Location: cuser.php');
+header('Location: createuser.php');
 exit;

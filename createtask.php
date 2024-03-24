@@ -7,9 +7,9 @@
     initial-scale=1.0">
     <title>Создать задачу</title>
     <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.m
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.m
     in.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9J
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9J
     voRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
@@ -26,7 +26,8 @@
         <br>
         <?php include 'printforcreatetasksphp.php'; ?>
         <button type="submit" class="btn btn-success"
-                name="submit">Продолжить</button>
+                name="submit">Продолжить
+        </button>
     </form>
 </div>
 </body>

@@ -1,43 +1,37 @@
 <?php
-$dbhost = 'localhost';
-$dbname = 'train';
-$dbuser = 'postgres';
-$dbpassword = 'daniil2018';
-$cn = new PDO("pgsql:host=$dbhost;dbname=$dbname", $dbuser, $dbpassword);
+include 'db.php';
 if (isset($_POST['submit'])) {
     $describe = $_POST['describe'];
     $deadline = $_POST['deadline'];
-    $select1 = $_POST['select1'];
-    $select2 = $_POST['select2'];
-    $select3 = $_POST['select3'];
-    if (!$describe || !$deadline|| !$select1 || !$select2){
+    $prioritetID = $_POST['prioritet'];
+    $userID1 = $_POST['user1'];
+    $userID2 = $_POST['user2'];
+    if (empty($describe) || empty($deadline) || empty($prioritetID) || empty($userID1) || empty($userID2)) {
         die("Please, input all values!");
     }
-    $query = "INSERT INTO tasks (describe, dedline, fk_prioritet, fk_tasks_users ) VALUES (?,
-?, (SELECT id FROM prioritets WHERE prioritet = ?), (SELECT id FROM users WHERE fio = ?))";
-    $stmt = $cn->prepare($query);
-    $stmt->execute(array($describe,$deadline,$select1,$select2));
+    try {
+        $cn->beginTransaction();
+        $query = "INSERT INTO tasks (describe, dedline, fk_prioritet, fk_tasks_users ) VALUES (?,
+?, ?, ?)";
+        $stmt = $cn->prepare($query);
+        $stmt->execute(array($describe, $deadline, $prioritetID, $userID1));
 
-    $query1 = "SELECT id FROM tasks WHERE describe = ?";
-    $stmt1 = $cn->prepare($query1);
-    $stmt1->execute(array($describe));
-    $ids = $stmt1 -> fetch();
-    $id = $ids["id"];
+        $id = $cn->lastInsertId();
 
-    $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES((SELECT id FROM users WHERE fio = ?),?)";
-    $stmt2 = $cn->prepare($query2);
-    $stmt2->execute(array($select2,$id));
+        $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
+        $stmt2 = $cn->prepare($query2);
+        $stmt2->execute(array($userID1, $id));
 
-    $query3 = "SELECT id FROM tasks WHERE describe = ?";
-    $stmt3 = $cn->prepare($query1);
-    $stmt3->execute(array($describe));
-    $ids = $stmt3 -> fetch();
-    $id = $ids["id"];
+        $query3 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
+        $stmt3 = $cn->prepare($query3);
+        $stmt3->execute(array($userID2, $id));
+        $cn->commit();
+    } catch (PDOException $e) {
+        $e->getMessage();
+        $cn->rollBack();
+    }
 
-    $query4 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES((SELECT id FROM users WHERE fio = ?),?)";
-    $stmt4 = $cn->prepare($query3);
-    $stmt4->execute(array($select3,$id));
 }
-header('Location: ctask.php');
+header('Location: createtask.php');
 exit;
 ?>

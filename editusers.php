@@ -1,11 +1,11 @@
-global$cn; <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,
     initial-scale=1.0">
-    <title>Создать пользователя</title>
+    <title>Изменить пользователя</title>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.m
     in.css"
@@ -14,13 +14,19 @@ global$cn; <!DOCTYPE html>
 </head>
 <body>
 <div class="container mt-4" align="center">
-    <h1>Создание пользователя</h1>
-    <form method="POST" action="createuserphp.php">
+    <h1>Изменить пользователя</h1>
+    <form method="POST" action="/edituserphp.php">
+        <input class="form-control" type="text" name="id"
+               placeholder="ID">
+        <br>
+        <br>
         <input class="form-control" type="text" name="username"
-               placeholder="Username">
+               placeholder="New username">
+        <br>
         <br>
         <button type="submit" class="btn btn-success"
-                name="submit">Продолжить</button>
+                name="submit">Продолжить
+        </button>
     </form>
 </div>
 </body>

@@ -15,12 +15,12 @@ voRxT2MZw1T" crossorigin="anonymous">
 <body>
 <div class="container mt-4" align="center">
     <h1>Главная страница</h1>
-    <a href="/ctask.php">Создать задачу</a><br>
-    <a href="/cuser.php">Создать пользователя</a><br>
+    <a href="/createtask.php">Создать задачу</a><br>
+    <a href="/createuser.php">Создать пользователя</a><br>
     <a href="/tasks.php">Задачи</a><br>
     <a href="/users.php">Пользователи</a><br>
-    <a href="/etasks.php">Изменить задачу</a><br>
-    <a href="/eusers.php">Изменить пользователя</a>
+    <a href="/edittasks.php">Изменить задачу</a><br>
+    <a href="/editusers.php">Изменить пользователя</a>
 </div>
 </body>
 </html>
