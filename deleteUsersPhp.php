@@ -28,6 +28,6 @@ values!");
     }
 
 }
-header('Location: users.php');
+header('Location: deleteUsers.php');
 exit;
 ?>

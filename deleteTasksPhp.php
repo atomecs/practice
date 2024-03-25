@@ -23,6 +23,6 @@ if (isset($_POST['submit'])) {
     }
 
 }
-header('Location: tasks.php');
+header('Location: deleteTasks.php');
 exit;
 ?>
