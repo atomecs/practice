@@ -1,11 +1,11 @@
 <?php
-
+namespace controllers;
+use service\UserService;
 class UserController
 {
     public $userService;
 
     public function __construct(){
-        require_once "./service/UserService.php";
         $this->userService = new UserService();
     }
     public function getPage(){

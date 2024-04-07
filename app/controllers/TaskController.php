@@ -1,11 +1,12 @@
 <?php
-
+namespace controllers;
+use service\TaskService;
 class TaskController
 {
     public $taskService;
 
     public function __construct(){
-        require_once "./service/TaskService.php";
+
         $this->taskService = new TaskService();
     }
     public function getPage(){

@@ -1,4 +1,7 @@
 <?php
+namespace service;
+use PDO;
+use PDOException;
 
 class TaskService
 {
@@ -105,7 +108,7 @@ class TaskService
             $this->connect->commit();
             echo "Completed";
         } catch (PDOException $e) {
-            $e->getMessage();
+            var_dump($e->getMessage());
             $this->connect->rollBack();
         }
     }

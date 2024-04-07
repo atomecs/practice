@@ -1,4 +1,7 @@
 <?php
+namespace service;
+use PDO;
+use PDOException;
 
 class UserService
 {
@@ -26,7 +29,7 @@ class UserService
         $stmt = $this->connect->query($result);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function createQuery($describe, $deadline, $prioritetId, $userId1, $userId2)
+    public function createQuery($username)
     {
 
         try {
