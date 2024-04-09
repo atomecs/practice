@@ -10,34 +10,19 @@ function debug($str)
     echo '</pre>';
     exit;
 }
-use controllers\UserController;
-use controllers\TaskController;
-use service\TaskService;
-use service\UserService;
+
 
 spl_autoload_register(function ($class) {
-    $patch = str_replace('\\', '/', $class.'.php');
+    $patch = str_replace('\\', '/', $class . '.php');
     if (file_exists($patch)) {
         require_once $patch;
     }
 });
-$class = $_GET['act']??'0';
-$method = $_GET['method']??'0';
-
-switch ($class) {
-    case 'user':
-        $Controller = new UserController();
-        echo $Controller->$method();
-        break;
-    case 'task':
-        $Controller = new TaskController();
-        echo $Controller->$method();
-        break;
-
-    default:
-        echo "not found";
-        break;
-}
+$class = $_GET['act'] ?? '0';
+$method = $_GET['method'] ?? '0';
+$Class = 'controllers\\' . ucfirst($class) . 'Controller';
+$Controller = new $Class;
+echo $Controller->$method($_REQUEST);
 
 
 

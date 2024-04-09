@@ -1,48 +1,59 @@
 <?php
+
 namespace controllers;
+
 use service\TaskService;
+use dto\TaskDto;
+use dto\UserDto;
+
 class TaskController
 {
     public $taskService;
+    public $taskDto;
+    public $userDto;
 
-    public function __construct(){
+    public function __construct()
+    {
 
         $this->taskService = new TaskService();
+        $this->taskDto = new TaskDto();
+        $this->userDto = new UserDto();
     }
-    public function getPage(){
-        $page = $_GET['page'];
-        $route = './lib/'.$page.'.php';
-        return $this->taskService->givePage($route);
+
+    public function getPage($request)
+    {
+        $page = $request['page'];
+        $route = './lib/' . $page . '.php';
+        return $this->taskService->getPage($route);
     }
 
     public function printTasks()
     {
-        var_dump($this->taskService->printAll());
-    }
-    public function createTask()
-    {
-        $describe = $_POST['describe'];
-        $deadline = $_POST['deadline'];
-        $prioritetId = $_POST['prioritet'];
-        $userId1 = $_POST['user1'];
-        $userId2 = $_POST['user2'];
-        return $this->taskService->createQuery($describe, $deadline, $prioritetId, $userId1, $userId2);
+        return($this->taskService->printTasks());
     }
 
-    public function editTask()
+    public function createTask($request)
     {
-        $id = $_POST['id'];
-        $describe = $_POST['describe'];
-        $deadline = $_POST['deadline'];
-        $prioritetId = $_POST['prioritet'];
-        $userId1 = $_POST['user1'];
-        $userId2 = $_POST['user2'];
-        return $this->taskService->editQuery($id,$describe, $deadline, $prioritetId, $userId1, $userId2);
+        $this->taskDto->describe = $request['describe'];
+        $this->taskDto->deadline = $request['deadline'];
+        $this->taskDto->prioritetId = $request['prioritet'];
+        $this->userDto->id = explode(',', $request['user1']);
+        return $this->taskService->createTask($this->taskDto, $this->userDto);
     }
 
-    public function deleteTask()
+    public function editTask($request)
     {
-        $delete = $_POST['delete'];
-        return $this->taskService->deleteQuery($delete);
+        $this->taskDto->id = $request['id'];
+        $this->taskDto->describe = $request['describe'];
+        $this->taskDto->deadline = $request['deadline'];
+        $this->taskDto->prioritetId = $request['prioritet'];
+        $this->userDto->id = explode(',', $request['user1']);;
+        return $this->taskService->editTask($this->taskDto, $this->userDto);
+    }
+
+    public function deleteTask($request)
+    {
+        $this->taskDto->id = $request['delete'];
+        return $this->taskService->deleteTask($this->taskDto);
     }
 }

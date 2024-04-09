@@ -1,5 +1,7 @@
 <?php
+
 namespace service;
+
 use PDO;
 use PDOException;
 
@@ -13,17 +15,17 @@ class TaskService
         require_once "./config/dataBase.php";
         $this->connect = $connect;
     }
-    public function givePage($route)
+
+    public function getPage($route)
     {
-        if (file_exists($route)){
+        if (file_exists($route)) {
             return require_once $route;
-        }
-        else {
+        } else {
             return "not found";
         }
     }
 
-    public function printAll()
+    public function printTasks()
     {
         $res = "SELECT ut.tasks_id, t.describe, t.dedline, p.prioritet, u.fio
         FROM users_tasks ut
@@ -31,26 +33,24 @@ class TaskService
         JOIN prioritets p ON t.fk_prioritet = p.id
         JOIN users u ON u.id = ut.users_id";
         $stmt = $this->connect->query($res);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
-    public function createQuery($describe, $deadline, $prioritetId, $userId1, $userId2)
+
+    public function createTask($taskDto, $userDto)
     {
         try {
             $this->connect->beginTransaction();
             $query = "INSERT INTO tasks (describe, dedline, fk_prioritet) VALUES (?,
 ?, ?)";
             $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($describe, $deadline, $prioritetId,));
+            $stmt->execute(array($taskDto->describe, $taskDto->deadline, $taskDto->prioritetId));
 
-            $id = $this->connect->lastInsertId();
-
-            $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-            $stmt2 = $this->connect->prepare($query2);
-            $stmt2->execute(array($userId1, $id));
-
-            $query3 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-            $stmt3 = $this->connect->prepare($query3);
-            $stmt3->execute(array($userId2, $id));
+            $taskDto->id = $this->connect->lastInsertId();
+            foreach ($userDto->id as $uId) {
+                $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
+                $stmt2 = $this->connect->prepare($query2);
+                $stmt2->execute(array($uId, $taskDto->id));
+            }
             $this->connect->commit();
             echo "Completed";
         } catch (PDOException $e) {
@@ -63,27 +63,25 @@ class TaskService
 
     }
 
-    public function editQuery($id, $describe, $deadline, $prioritetId, $userId1, $userId2)
+    public function editTask($taskDto, $userDto)
     {
         try {
             $this->connect->beginTransaction();
 
             $query = "DELETE FROM users_tasks WHERE tasks_id = ?";
             $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($id));
+            $stmt->execute(array($taskDto->id));
 
 
             $query2 = "UPDATE tasks SET describe=?, dedline = ?, fk_prioritet = ? WHERE id=?";
             $stmt = $this->connect->prepare($query2);
-            $stmt->execute(array($describe, $deadline, $prioritetId, $id));
+            $stmt->execute(array($taskDto->describe, $taskDto->deadline, $taskDto->prioritetId, $taskDto->id));
 
-            $query3 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-            $stmt2 = $this->connect->prepare($query3);
-            $stmt2->execute(array($userId1, $id));
-
-            $query4 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-            $stmt4 = $this->connect->prepare($query4);
-            $stmt4->execute(array($userId2, $id));
+            foreach ($userDto->id as $uId) {
+                $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
+                $stmt2 = $this->connect->prepare($query2);
+                $stmt2->execute(array($uId, $taskDto->id));
+            }
 
             $this->connect->commit();
             echo "Completed";
@@ -92,18 +90,19 @@ class TaskService
             $this->connect->rollBack();
         }
     }
-    public function deleteQuery($delete)
+
+    public function deleteTask($taskDto)
     {
         try {
             $this->connect->beginTransaction();
 
             $query = "DELETE FROM users_tasks WHERE tasks_id = ?";
             $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($delete));
+            $stmt->execute(array($taskDto->id));
 
             $query = "DELETE FROM tasks WHERE id = ?";
             $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($delete));
+            $stmt->execute(array($taskDto->id));
 
             $this->connect->commit();
             echo "Completed";

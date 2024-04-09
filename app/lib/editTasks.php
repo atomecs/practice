@@ -34,10 +34,6 @@
                placeholder="ID user">
         <br>
         <br>
-        <input class="form-control" type="text" name="user2"
-               placeholder="ID user">
-        <br>
-        <br>
         <button type="submit" class="btn btn-success"
                 name="submit">Продолжить
         </button>

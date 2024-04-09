@@ -1,39 +1,50 @@
 <?php
+
 namespace controllers;
+
 use service\UserService;
+use dto\UserDto;
+
 class UserController
 {
     public $userService;
+    public $userDto;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->userService = new UserService();
-    }
-    public function getPage(){
-        $page = $_GET['page'];
-        $route = './lib/'.$page.'.php';
-        return $this->userService->givePage($route);
+        $this->userDto = new UserDto();
     }
 
-    public function printUsers()
+    public function getPage($request)
     {
-        var_dump($this->userService->printAll());
-    }
-    public function createUser()
-    {
-        $username = $_POST['username'];
-        return $this->userService->createQuery($username);
+        var_dump($request);
+        $page = $request['page'];
+        $route = './lib/' . $page . '.php';
+        return $this->userService->getPage($route);
     }
 
-    public function editUser()
+    public function printUsers($request)
     {
-        $id = $_POST['id'];
-        $username = $_POST['username'];
-        return $this->userService->editQuery($id,$username);
+        return($this->userService->printUsers());
     }
 
-    public function deleteUser()
+    public function createUser($request)
     {
-        $delete = $_POST['delete'];
-        return $this->userService->deleteQuery($delete);
+        $this->userDto->username = $request['username'];
+        return $this->userService->createUser($this->userDto);
+    }
+
+    public function editUser($request)
+    {
+        $this->userDto->id = $request['id'];
+        $this->userDto->username = $request['username'];
+        return $this->userService->editUser($this->userDto);
+    }
+
+    public function deleteUser($request)
+    {
+        $this->userDto->id = $request['delete'];
+        return $this->userService->deleteUser($this->userDto);
     }
 }
