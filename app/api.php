@@ -1,5 +1,5 @@
 <?php
-
+require_once 'bootstrap.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -18,6 +18,8 @@ spl_autoload_register(function ($class) {
         require_once $patch;
     }
 });
+$product = $entityManager->getRepository('Tasks')->findOneBy(['id' => 85]);
+var_dump($product);
 $class = $_GET['act'] ?? '0';
 $method = $_GET['method'] ?? '0';
 $Class = 'controllers\\' . ucfirst($class) . 'Controller';
