@@ -2,4 +2,4 @@
 index.php
 info.php
 drawft.php
-app/vendor
+./app/vendor
