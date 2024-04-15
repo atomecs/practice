@@ -13,8 +13,8 @@ class UserService
 
     public function __construct()
     {
-        require_once "./config/dataBase.php";
-        $this->connect = $connect;
+//        require_once "./config/dataBase.php";
+//        $this->connect = $connect;
     }
 
     public function getPage($route)
@@ -29,7 +29,7 @@ class UserService
     public function printUsers()
     {
         $entityManager= getEntityManager();
-        $product = $entityManager->getRepository('User')->findOneBy(['id' => 85]);
+        $product = $entityManager->getRepository('UserEntity')->findOneBy(['id' => 85]);
 //        $result = "SELECT * FROM users";
 //        $stmt = $this->connect->query($result);
         return $product;

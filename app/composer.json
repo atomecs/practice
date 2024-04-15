@@ -13,7 +13,8 @@
   "autoload": {
     "psr-4": {
       "app\\": "./",
-      "Entity\\": "Entities"
+      "app\\Entities\\": "Entities"
+
     }
   }
 }

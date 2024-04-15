@@ -12,8 +12,8 @@ class TaskService
 
     public function __construct()
     {
-        require_once "./config/dataBase.php";
-        $this->connect = $connect;
+//        require_once "./config/dataBase.php";
+//        $this->connect = $connect;
     }
 
     public function getPage($route)
