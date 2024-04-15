@@ -1,9 +1,10 @@
 <?php
 
-namespace service;
+namespace app\service;
 
 use PDO;
 use PDOException;
+use app\Entities\UserEntity;
 
 class UserService
 {
@@ -27,9 +28,11 @@ class UserService
 
     public function printUsers()
     {
-        $result = "SELECT * FROM users";
-        $stmt = $this->connect->query($result);
-        return json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        $entityManager= getEntityManager();
+        $product = $entityManager->getRepository('User')->findOneBy(['id' => 85]);
+//        $result = "SELECT * FROM users";
+//        $stmt = $this->connect->query($result);
+        return $product;
     }
 
     public function createUser($userDto)

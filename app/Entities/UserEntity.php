@@ -1,7 +1,9 @@
 <?php
 
-use Doctrine\ORM\Mapping as ORM;
+namespace app\Entities;
+
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
@@ -28,6 +30,7 @@ class UserEntity
     {
         return $this->name;
     }
+
     public function setName(string $name): void
     {
         $this->name = $name;

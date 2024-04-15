@@ -1,9 +1,10 @@
 <?php
 
-namespace controllers;
+namespace app\controllers;
 
-use service\UserService;
-use dto\UserDto;
+use app\dto\UserDto;
+use app\service\UserService;
+
 
 class UserController
 {

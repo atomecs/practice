@@ -1,6 +1,6 @@
 <?php
 
-namespace dto;
+namespace app\dto;
 class TaskDto
 {
     public $id;

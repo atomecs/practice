@@ -1,8 +1,11 @@
 <?php
 
 
-use Doctrine\ORM\Mapping as ORM;
+namespace app\Entities;
+
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use ManyToMany;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tasks')]

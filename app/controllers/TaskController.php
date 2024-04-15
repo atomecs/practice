@@ -1,10 +1,10 @@
 <?php
 
-namespace controllers;
+namespace app\controllers;
 
-use service\TaskService;
-use dto\TaskDto;
-use dto\UserDto;
+use app\dto\TaskDto;
+use app\dto\UserDto;
+use app\service\TaskService;
 
 class TaskController
 {
