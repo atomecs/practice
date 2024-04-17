@@ -3,6 +3,7 @@
 
 namespace app\Entities;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ManyToMany;
@@ -18,17 +19,24 @@ class TaskEntity
     #[ORM\Column(name: 'describe', type: 'string')]
     private string $describe;
 
-    #[ORM\Column(name: 'dedline', type: 'string')]
+    #[ORM\Column(name: 'dedline')]
     private string $dedline;
 
 
     #[ORM\OneToOne(targetEntity: PrioritetEntity::class)]
     #[ORM\JoinColumn(name: 'fk_prioritet', referencedColumnName: 'id')]
-    private int $prioritets;
+    private ?PrioritetEntity $prioritets;
 
-    #[ManyToMany(targetEntity: UserEntity::class, mappedBy: 'tasks_id')]
+    #[ORM\JoinTable(name: 'users_tasks')]
+    #[ORM\JoinColumn(name: 'tasks_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'users_id', referencedColumnName: 'id')]
+    #[ORM\ManyToMany(targetEntity: UserEntity::class)]
     private Collection $users;
 
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -61,19 +69,24 @@ class TaskEntity
         return $this->prioritets;
     }
 
-    public function setPrioritets(int $prioritets): void
+    public function setPrioritets(?PrioritetEntity $prioritets): void
     {
         $this->prioritets = $prioritets;
     }
-
     public function getUsers(): Collection
     {
         return $this->users;
     }
 
-    public function setUsers(Collection $users): void
+    public function setUsers(UserEntity $users): void
     {
-        $this->users = $users;
+        $this->users[] = $users;
+    }
+
+    public function removeUser(): TaskEntity
+    {
+        $this->users = new ArrayCollection();
+        return $this;
     }
     // .. (other code)
 }

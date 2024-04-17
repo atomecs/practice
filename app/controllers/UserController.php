@@ -11,15 +11,14 @@ class UserController
     public $userService;
     public $userDto;
 
-    public function __construct()
+    public function __construct($entityManager)
     {
-        $this->userService = new UserService();
+        $this->userService = new UserService($entityManager);
         $this->userDto = new UserDto();
     }
 
     public function getPage($request)
     {
-        var_dump($request);
         $page = $request['page'];
         $route = './lib/' . $page . '.php';
         return $this->userService->getPage($route);

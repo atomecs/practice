@@ -12,10 +12,10 @@ class TaskController
     public $taskDto;
     public $userDto;
 
-    public function __construct()
+    public function __construct($entityManager)
     {
 
-        $this->taskService = new TaskService();
+        $this->taskService = new TaskService($entityManager);
         $this->taskDto = new TaskDto();
         $this->userDto = new UserDto();
     }

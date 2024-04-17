@@ -2,6 +2,11 @@
 
 namespace app\service;
 
+use app\dto\TaskDto;
+use app\dto\UserDto;
+use app\Entities\PrioritetEntity;
+use app\Entities\TaskEntity;
+use app\Entities\UserEntity;
 use PDO;
 use PDOException;
 
@@ -9,11 +14,11 @@ class TaskService
 {
 
     public $connect;
+    public $entityManager;
 
-    public function __construct()
+    public function __construct($entityManager)
     {
-//        require_once "./config/dataBase.php";
-//        $this->connect = $connect;
+        $this->entityManager = $entityManager;
     }
 
     public function getPage($route)
@@ -27,85 +32,63 @@ class TaskService
 
     public function printTasks()
     {
-        $res = "SELECT ut.tasks_id, t.describe, t.dedline, p.prioritet, u.fio
-        FROM users_tasks ut
-        JOIN tasks t ON ut.tasks_id = t.id
-        JOIN prioritets p ON t.fk_prioritet = p.id
-        JOIN users u ON u.id = ut.users_id";
-        $stmt = $this->connect->query($res);
-        return json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        return json_encode($this->entityManager->getRepository(TaskEntity::class)->findAll());
     }
 
-    public function createTask($taskDto, $userDto)
+    public function createTask(TaskDto $taskDto, UserDto $userDto)
     {
+        $task = new TaskEntity;
         try {
-            $this->connect->beginTransaction();
-            $query = "INSERT INTO tasks (describe, dedline, fk_prioritet) VALUES (?,
-?, ?)";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->describe, $taskDto->deadline, $taskDto->prioritetId));
+            $priority = $this->entityManager->getRepository(PrioritetEntity::class)->find($taskDto->prioritetId);
+            $task->setDescribe($taskDto->describe);
+            $task->setDedline($taskDto->deadline);
+            $task->setPrioritets($priority);
+            $this->entityManager->persist($task);
+            $this->entityManager->flush();
+            foreach($userDto->id as $value){
+                $user = $this->entityManager->getRepository(UserEntity::class)->find($value);
+                $user->setTask($task);
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
 
-            $taskDto->id = $this->connect->lastInsertId();
-            foreach ($userDto->id as $uId) {
-                $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-                $stmt2 = $this->connect->prepare($query2);
-                $stmt2->execute(array($uId, $taskDto->id));
             }
-            $this->connect->commit();
-            echo "Completed";
         } catch (PDOException $e) {
             var_dump($e->getMessage());
-            $this->connect->rollBack();
-
-
         }
 
 
     }
 
-    public function editTask($taskDto, $userDto)
+    public function editTask(TaskDto $taskDto, UserDto $userDto)
     {
         try {
-            $this->connect->beginTransaction();
+            $task = $this->entityManager->getRepository(TaskEntity::class)->find($taskDto->id);
+            $priority = $this->entityManager->getRepository(PrioritetEntity::class)->find($taskDto->prioritetId);
+            $task->removeUser();
+            $task->setDescribe($taskDto->describe);
+            $task->setDedline($taskDto->deadline);
+            $task->setPrioritets($priority);
+            $this->entityManager->persist($task);
+            $this->entityManager->flush();
+            foreach($userDto->id as $value){
+                $user = $this->entityManager->getRepository(UserEntity::class)->find($value);
+                $user->setTask($task);
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
 
-            $query = "DELETE FROM users_tasks WHERE tasks_id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->id));
-
-
-            $query2 = "UPDATE tasks SET describe=?, dedline = ?, fk_prioritet = ? WHERE id=?";
-            $stmt = $this->connect->prepare($query2);
-            $stmt->execute(array($taskDto->describe, $taskDto->deadline, $taskDto->prioritetId, $taskDto->id));
-
-            foreach ($userDto->id as $uId) {
-                $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-                $stmt2 = $this->connect->prepare($query2);
-                $stmt2->execute(array($uId, $taskDto->id));
             }
-
-            $this->connect->commit();
-            echo "Completed";
         } catch (PDOException $e) {
             var_dump($e->getMessage());
             $this->connect->rollBack();
         }
     }
 
-    public function deleteTask($taskDto)
+    public function deleteTask(TaskDto $taskDto)
     {
         try {
-            $this->connect->beginTransaction();
-
-            $query = "DELETE FROM users_tasks WHERE tasks_id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->id));
-
-            $query = "DELETE FROM tasks WHERE id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->id));
-
-            $this->connect->commit();
-            echo "Completed";
+            $task = $this->entityManager->getRepository(TaskEntity::class)->find($taskDto->id);
+            $this->entityManager->remove($task);
+            $this->entityManager->flush();
         } catch (PDOException $e) {
             var_dump($e->getMessage());
             $this->connect->rollBack();
