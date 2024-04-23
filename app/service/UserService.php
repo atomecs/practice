@@ -3,69 +3,68 @@
 namespace app\service;
 
 use app\dto\UserDto;
+use Doctrine\ORM\EntityManager;
+use Exception;
 use PDO;
 use PDOException;
 use app\Entities\UserEntity;
+use Throwable;
 
 class UserService
 {
 
-    public $entityManager;
+    public EntityManager $entityManager;
 
 
-    public function __construct($entityManager)
+    public function __construct(EntityManager $entityManager)
     {
           $this->entityManager = $entityManager;
     }
 
-    public function getPage($route)
-    {
-        if (file_exists($route)) {
-            return require_once $route;
-        } else {
-            return "not found";
-        }
-    }
 
-    public function printUsers()
+    public function printUsers(): string
     {
         $entityManager= getEntityManager();
-        $users = $entityManager->getRepository('UserEntity')->findAll();
+        $users = $entityManager->getRepository(UserEntity::class)->findAll();
         return json_encode($users);
     }
 
-    public function createUser(UserDto $userDto)
+    public function createUser(UserDto $userDto): void
     {
-        $users = new UserEntity();
-        try {
-            $users->setName($userDto->username);
-            $this->entityManager->persist($users);
-            $this->entityManager->flush();
-        } catch (PDOException $e) {
-            return $e->getMessage();
+        if ($userDto->id){
+            $users = $this->entityManager->getRepository(UserEntity::class)->find($userDto->id);
+        } else {
+            $users = new UserEntity();
         }
+        try {
+            try {
+                $users->setName($userDto->username);
+                $this->entityManager->persist($users);
+                $this->entityManager->flush();
+            } catch (Throwable) {
+                throw new Exception('wrong');
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
     }
 
-    public function editUser(UserDto $userDto)
+
+    public function deleteUser(UserDto $userDto): void
     {
         try {
-            $users = $this->entityManager->getRepository(UserEntity::class)->find($userDto->id);
-            $users->setName($userDto->username);
-            $this->entityManager->flush();
-        } catch (PDOException $e) {
-            return $e->getMessage();
-        }
-    }
+            try {
+                $users = $this->entityManager->getRepository(UserEntity::class)->find($userDto->id);
+                $this->entityManager->remove($users);
+                $this->entityManager->flush();
+            } catch (Throwable) {
+                throw new Exception('wrong');
 
-    public function deleteUser(UserDto $userDto)
-    {
-        try {
-            $users = $this->entityManager->getRepository(UserEntity::class)->find($userDto->id);
-            $this->entityManager->remove($users);
-            $this->entityManager->flush();
-        } catch (PDOException $e) {
-            return $e->getMessage();
-
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
+
     }
 }

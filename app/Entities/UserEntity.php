@@ -13,7 +13,7 @@ class UserEntity
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\GeneratedValue(strategy: "AUTO")]
-    private int|null $id = null;
+    private int $id;
     #[ORM\Column(name: 'fio', type: 'string')]
     private string $name;
 
@@ -54,14 +54,9 @@ class UserEntity
         return $this;
     }
 
-    public function removeTask(TaskEntity $task): UserEntity
+    public function removeTask(): UserEntity
     {
-        if ($this->task->contains($task)) {
-            $this->task->removeElement($task);
-            if ($this->getTask() === $this){
-                $this->setTask(null);
-            }
-        }
+        $this->task = new ArrayCollection();
         return $this;
     }
     // .. (other code)

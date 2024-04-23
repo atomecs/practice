@@ -15,7 +15,7 @@ class TaskEntity
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\GeneratedValue]
-    private int|null $id = null;
+    private int $id;
     #[ORM\Column(name: 'describe', type: 'string')]
     private string $describe;
 
@@ -64,7 +64,7 @@ class TaskEntity
         $this->dedline = $dedline;
     }
 
-    public function getPrioritets(): int
+    public function getPrioritets(): ?PrioritetEntity
     {
         return $this->prioritets;
     }
@@ -80,7 +80,7 @@ class TaskEntity
 
     public function setUsers(UserEntity $users): void
     {
-        $this->users[] = $users;
+        $this->users->add($users);
     }
 
     public function removeUser(): TaskEntity

@@ -11,7 +11,7 @@ class PrioritetEntity
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\GeneratedValue]
-    private int|null $id = null;
+    private int $id;
     #[ORM\Column(name: 'prioritet', type: 'string')]
     private string $prioritet;
 
@@ -21,7 +21,7 @@ class PrioritetEntity
     }
 
 
-    public function getPrioritet(): string
+    public function getPrioritet(): string|null
     {
         return $this->prioritet;
     }
