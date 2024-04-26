@@ -5,8 +5,6 @@ namespace app\service;
 use app\dto\UserDto;
 use Doctrine\ORM\EntityManager;
 use Exception;
-use PDO;
-use PDOException;
 use app\Entities\UserEntity;
 use Throwable;
 
@@ -22,17 +20,24 @@ class UserService
     }
 
 
-    public function printUsers(): string
+    public function printUsers(): array
     {
+        $userDto = new UserDto();
         $entityManager= getEntityManager();
         $users = $entityManager->getRepository(UserEntity::class)->findAll();
-        return json_encode($users);
+        $result = [];
+        foreach ($users as $user) {
+            $userDto->id = $user->getId();
+            $userDto->username = $user->getName();
+            $result[] = $userDto;
+        }
+        return $result;
     }
 
     public function createUser(UserDto $userDto): void
     {
         if ($userDto->id){
-            $users = $this->entityManager->getRepository(UserEntity::class)->find($userDto->id);
+            $users = $this->entityManager->find(UserEntity::class, $userDto->id);
         } else {
             $users = new UserEntity();
         }
@@ -51,11 +56,11 @@ class UserService
     }
 
 
-    public function deleteUser(UserDto $userDto): void
+    public function deleteUser(int $id): void
     {
         try {
             try {
-                $users = $this->entityManager->getRepository(UserEntity::class)->find($userDto->id);
+                $users = $this->entityManager->find(UserEntity::class, $id);
                 $this->entityManager->remove($users);
                 $this->entityManager->flush();
             } catch (Throwable) {

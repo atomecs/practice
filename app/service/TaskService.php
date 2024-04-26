@@ -11,8 +11,6 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManager;
 use Error;
 use Exception;
-use PDO;
-use PDOException;
 use Throwable;
 
 class TaskService
@@ -26,7 +24,7 @@ class TaskService
     }
 
 
-    public function printTasks(): string
+    public function printTasksTwo(): array
     {
         $allTasks = $this->entityManager->getRepository(TaskEntity::class)->findAll();
         $result = [];
@@ -35,61 +33,65 @@ class TaskService
             $taskDto->id = $task->getId();
             $taskDto->describe = $task->getDescribe();
             $taskDto->deadline = $task->getDedline();
-            $taskDto->prioritetId = $task->getPrioritets() ? $task->getPrioritets()->getPrioritet() : null;
-            $taskDto->users = $task->getUsers();
+            $taskDto->prioritetId = $task->getPrioritets()->getId();
+            $taskDto->prioritetName = $task->getPrioritets()->getPrioritet();
+            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity) {return [$userEntity->getId(), $userEntity->getName()];})->toArray();
             $result[] = $taskDto;
         }
-        return json_encode($result);
+        return $result;
     }
 
-    public function createTask(TaskDto $taskDto, UserDto $userDto): void
+    public function printTasks(): array
     {
-        if ($taskDto->id){
-            $task = $this->entityManager->getRepository(TaskEntity::class)->find($taskDto->id);
+        $qb = $this->entityManager->createQueryBuilder();
+        $result = $qb->select('t.id', 't.describe', 't.dedline', 'p.prioritet', 'u.name')
+            ->from(TaskEntity::class, 't')
+            ->join('t.prioritets', 'p')
+            ->leftJoin('t.users', 'u')
+            ->where('u is not null');
+        return $result->getQuery()->getArrayResult();
+
+    }
+    public function createTask(TaskDto $taskDto): void
+    {
+        if ($taskDto->id) {
+            $task = $this->entityManager->find(TaskEntity::class, $taskDto->id);
             $task->removeUser();
         } else {
             $task = new TaskEntity;
         }
         try {
-            try {
-                $priority = $this->entityManager->getRepository(PrioritetEntity::class)->find($taskDto->prioritetId);
-                $task->setDescribe($taskDto->describe);
-                $task->setDedline($taskDto->deadline);
-                $task->setPrioritets($priority);
-                $this->entityManager->persist($task);
+
+            $priority = $this->entityManager->find(PrioritetEntity::class, $taskDto->prioritetId);
+            $task->setDescribe($taskDto->describe);
+            $task->setDedline($taskDto->deadline);
+            $task->setPrioritets($priority);
+            $this->entityManager->persist($task);
+            $this->entityManager->flush();
+
+            foreach ($taskDto->users as $value) {
+                $user = $this->entityManager->find(UserEntity::class,$value);
+                $user->setTask($task);
+                $this->entityManager->persist($user);
                 $this->entityManager->flush();
-
-                foreach($userDto->id as $value){
-                    $user = $this->entityManager->getRepository(UserEntity::class)->find($value);
-                    $user->setTask($task);
-                    $this->entityManager->persist($user);
-                    $this->entityManager->flush();
-
-                }
-            } catch (Throwable $e) {
-                throw new Exception('wrong');
             }
-        } catch (Exception $e){
-            echo $e->getMessage();
+        } catch (Throwable $e) {
+            throw new Exception('wrong');
         }
-
 
 
     }
 
-    public function deleteTask(TaskDto $taskDto): void
+    public function deleteTask(int $id): void
     {
         try {
-            try {
-                $task = $this->entityManager->getRepository(TaskEntity::class)->find($taskDto->id);
-                $this->entityManager->remove($task);
-                $this->entityManager->flush();
-            } catch (Throwable $e) {
-                throw new Exception('wrong');
-            }
-        } catch (Exception $e){
-            echo $e->getMessage();
+            $task = $this->entityManager->find(TaskEntity::class,$id);
+            $this->entityManager->remove($task);
+            $this->entityManager->flush();
+        } catch (Throwable $e) {
+            throw new Exception('wrong');
         }
+
 
     }
 }

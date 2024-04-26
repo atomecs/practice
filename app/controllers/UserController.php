@@ -12,33 +12,35 @@ class UserController
     public UserService $userService;
 
 
-    public function __construct(EntityManager $entityManager, public UserDto $userDto = new UserDto())
+    public function __construct(EntityManager $entityManager)
     {
         $this->userService = new UserService($entityManager);
 
     }
 
-    public function printUsers(array $request): string
+    public function printUsers(): array
     {
         return($this->userService->printUsers());
     }
 
     public function createUser(array $request): void
     {
-        $this->userDto->username = $request['username'];
-        $this->userService->createUser($this->userDto);
+        $userDto = new UserDto;
+        $userDto->username = $request['username'];
+        $this->userService->createUser($userDto);
     }
 
     public function editUser(array $request): void
     {
-        $this->userDto->id = $request['id'];
-        $this->userDto->username = $request['username'];
-        $this->userService->createUser($this->userDto);
+        $userDto = new UserDto;
+        $userDto->id = $request['id'];
+        $userDto->username = $request['username'];
+        $this->userService->createUser($userDto);
     }
 
     public function deleteUser(array $request): void
     {
-        $this->userDto->id = $request['delete'];
-        $this->userService->deleteUser($this->userDto);
+        $id = $request['delete'];
+        $this->userService->deleteUser($id);
     }
 }

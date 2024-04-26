@@ -24,7 +24,7 @@ $Class = 'app\\controllers\\' . ucfirst($class) . 'Controller';
 $Controller = new $Class($entityManager);
 //$Controller = new \app\controllers\UserController($entityManager);
 //echo $Controller->getPage('createTask');
-echo $Controller->$method($_REQUEST);
+echo json_encode($Controller->$method($_REQUEST));
 
 
 

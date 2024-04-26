@@ -4,7 +4,7 @@ namespace app\dto;
 
 class UserDto
 {
-    public $id;
-    public $username;
+    public int|null $id = null;
+    public string $username;
 
 }

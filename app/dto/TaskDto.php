@@ -3,10 +3,11 @@
 namespace app\dto;
 class TaskDto
 {
-    public $id;
-    public $describe;
-    public $deadline;
-    public $prioritetId;
-    public $users;
+    public int|null $id = null;
+    public string $describe;
+    public string $deadline;
+    public int $prioritetId;
+    public string $prioritetName;
+    public array $users;
 
 }
