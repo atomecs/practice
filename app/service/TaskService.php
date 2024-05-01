@@ -96,7 +96,7 @@ class TaskService
 
     }
 
-    public function getPdf()
+    public function getPdf(): void
     {
         $html = '<font face="Dejavu serif">
     <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
