@@ -9,6 +9,7 @@ use app\Entities\TaskEntity;
 use app\Entities\UserEntity;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManager;
+use Dompdf\Dompdf;
 use Error;
 use Exception;
 use Throwable;
@@ -93,5 +94,39 @@ class TaskService
         }
 
 
+    }
+
+    public function getPdf()
+    {
+        $html = '<font face="Dejavu serif">
+    <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
+          <tr>
+            <th>id</th>
+            <th>Describe</th>
+            <th>Deadline</th>
+            <th>PrioritetName</th>
+            <th>User</th>
+          </tr>';
+        $qb = $this->entityManager->createQueryBuilder();
+        $result = $qb->select('t.id', 't.describe', 't.dedline', 'p.prioritet', 'u.name')
+            ->from(TaskEntity::class, 't')
+            ->join('t.prioritets', 'p')
+            ->leftJoin('t.users', 'u')
+            ->where('u is not null');
+        $allTasks = $result->getQuery()->getArrayResult();
+        foreach ($allTasks as $task) {
+            $html .= '<tr>';
+            foreach ($task as $item){
+                $html .= '<td>'.$item.'</td>';
+
+            }
+            $html .= '</tr>';
+        }
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream();
     }
 }

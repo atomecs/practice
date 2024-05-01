@@ -6,7 +6,8 @@
     "doctrine/dbal": "^3.2",
     "symfony/yaml": "^5.4",
     "symfony/cache": "^5.4",
-    "doctrine/annotations": "^1.14"
+    "doctrine/annotations": "^1.14",
+    "dompdf/dompdf": "^2.0"
 
   },
 
@@ -18,4 +19,3 @@
     }
   }
 }
-

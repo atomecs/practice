@@ -23,6 +23,10 @@ class UserController
         return($this->userService->printUsers());
     }
 
+    public function getPdf():void
+    {
+        $this->userService->getPdf();
+    }
     public function createUser(array $request): void
     {
         $userDto = new UserDto;

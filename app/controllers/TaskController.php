@@ -24,6 +24,11 @@ class TaskController
     {
         return($this->taskService->printTasks());
     }
+
+    public function getPdf(): void
+    {
+        $this->taskService->getPdf();
+    }
     public function createTask(array $request): void
     {
         $taskDto = new TaskDto();
