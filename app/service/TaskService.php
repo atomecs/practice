@@ -45,7 +45,7 @@ class TaskService
     public function printTasks(): array
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $result = $qb->select('t', 'u.name')
+        $result = $qb->select('t','p.namePrioritet', 'u.name')
             ->from(TaskEntity::class, 't')
             ->join('t.prioritets', 'p')
             ->leftJoin('t.users', 'u')
@@ -99,29 +99,23 @@ class TaskService
         $html = '<font face="Dejavu serif">
     <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
           <tr>
-            <th>id</th>
+            <th>№</th>
             <th>Describe</th>
             <th>Deadline</th>
             <th>PrioritetName</th>
             <th>User</th>
           </tr>';
-        $qb = $this->entityManager->createQueryBuilder();
-        $result = $qb->select('t', 'p.namePrioritet', 'u.name')
-            ->from(TaskEntity::class, 't')
-            ->join('t.prioritets', 'p')
-            ->leftJoin('t.users', 'u')
-            ->where('u is not null');
-        $allTasks = $result->getQuery()->getArrayResult();
-        foreach ($allTasks as $task) {
+        $result = $this->printTasks();
+        $i = 1;
+        foreach ($result as $task) {
             $html .= '<tr>';
-            $html .= '<td>'.$task[0]['id'].'</td>';
+            $html .= '<td>'.$i.'</td>';
             $html .= '<td>'.$task[0]['describe'].'</td>';
             $html .= '<td>'.$task[0]['dedline'].'</td>';
             $html .= '<td>'.$task['namePrioritet'].'</td>';
             $html .= '<td>'.$task['name'].'</td>';
-
-
             $html .= '</tr>';
+            $i++;
         }
 
         $dompdf = new Dompdf();

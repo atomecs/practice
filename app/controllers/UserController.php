@@ -27,6 +27,7 @@ class UserController
     {
         $this->userService->getPdf();
     }
+
     public function createUser(array $request): void
     {
         $userDto = new UserDto;

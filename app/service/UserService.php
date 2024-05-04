@@ -80,16 +80,18 @@ class UserService
         $html = '<font face="Dejavu serif">
         <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
           <tr>
-            <th>id</th>
+            <th>№</th>
             <th>Name</th>
           </tr>';
         $entityManager= getEntityManager();
         $users = $entityManager->getRepository(UserEntity::class)->findAll();
+        $i = 1;
         foreach ($users as $user) {
             $html .= '<tr>';
-            $html.= '<td>'. $user->getId().'</td>';
+            $html.= '<td>'. $i.'</td>';
             $html.= '<td>'.$user->getName().'</td>';
             $html .= '</tr>';
+            $i++;
         }
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);
