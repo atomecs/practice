@@ -5,6 +5,7 @@ namespace app\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ManyToMany;
 
@@ -13,13 +14,14 @@ use ManyToMany;
 class TaskEntity
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id', type: 'integer')]
-    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id', type: Types::INTEGER)]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
     private int $id;
-    #[ORM\Column(name: 'describe', type: 'string')]
+
+    #[ORM\Column(name: 'describe', type: Types::STRING)]
     private string $describe;
 
-    #[ORM\Column(name: 'dedline')]
+    #[ORM\Column(name: 'dedline', type: Types::STRING)]
     private string $dedline;
 
 
@@ -88,5 +90,5 @@ class TaskEntity
         $this->users = new ArrayCollection();
         return $this;
     }
-    // .. (other code)
+
 }

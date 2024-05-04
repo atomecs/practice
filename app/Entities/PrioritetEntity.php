@@ -2,6 +2,7 @@
 
 namespace app\Entities;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -9,22 +10,23 @@ use Doctrine\ORM\Mapping as ORM;
 class PrioritetEntity
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Column(name: 'id', type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     private int $id;
-    #[ORM\Column(name: 'prioritet', type: 'string')]
-    private string $prioritet;
 
-    public function getId(): int|null
+    #[ORM\Column(name: 'prioritet', type: Types::STRING)]
+    private string $namePrioritet;
+
+    public function getId(): ?int
     {
         return $this->id;
     }
 
 
-    public function getPrioritet(): string|null
+    public function getNamePrioritet(): ?string
     {
-        return $this->prioritet;
+        return $this->namePrioritet;
     }
 
-    // .. (other code)
+
 }

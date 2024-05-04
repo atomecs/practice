@@ -35,24 +35,17 @@ class TaskController
         $taskDto->describe = $request['describe'];
         $taskDto->deadline = $request['deadline'];
         $taskDto->prioritetId = $request['prioritet'];
-        $taskDto->users = explode(',', $request['user1']);
+        $taskDto->users = $request['user1'];
+        if(isset($request['id'])){
+            $taskDto->id = $request['id'];
+        }
         $this->taskService->createTask($taskDto);
     }
 
-    public function editTask(array $request): void
-    {
-        $taskDto = new TaskDto();
-        $taskDto->id = $request['id'];
-        $taskDto->describe = $request['describe'];
-        $taskDto->deadline = $request['deadline'];
-        $taskDto->prioritetId = $request['prioritet'];
-        $taskDto->users = explode(',', $request['user1']);
-        $this->taskService->createTask($taskDto);
-    }
 
     public function deleteTask(array $request): void
     {
-        $id = $request['delete'];
+        $id = $request['id'];
         $this->taskService->deleteTask($id);
     }
 }

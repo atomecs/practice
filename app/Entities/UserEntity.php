@@ -4,6 +4,7 @@ namespace app\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -11,10 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 class UserEntity
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Column(name: 'id', type: Types::INTEGER)]
     #[ORM\GeneratedValue(strategy: "AUTO")]
     private int $id;
-    #[ORM\Column(name: 'fio', type: 'string')]
+
+    #[ORM\Column(name: 'fio', type: Types::STRING)]
     private string $name;
 
     #[ORM\JoinTable(name: 'users_tasks')]
@@ -59,5 +61,5 @@ class UserEntity
         $this->task = new ArrayCollection();
         return $this;
     }
-    // .. (other code)
+
 }

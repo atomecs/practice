@@ -31,20 +31,16 @@ class UserController
     {
         $userDto = new UserDto;
         $userDto->username = $request['username'];
+        if(isset($request['id'])){
+            $userDto->id = $request['id'];
+        }
         $this->userService->createUser($userDto);
     }
 
-    public function editUser(array $request): void
-    {
-        $userDto = new UserDto;
-        $userDto->id = $request['id'];
-        $userDto->username = $request['username'];
-        $this->userService->createUser($userDto);
-    }
 
     public function deleteUser(array $request): void
     {
-        $id = $request['delete'];
+        $id = $request['id'];
         $this->userService->deleteUser($id);
     }
 }

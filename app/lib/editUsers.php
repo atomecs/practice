@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Изменить пользователя</h1>
-    <form method="POST" action="/app/api.php?act=user&method=editUser">
+    <form method="POST" action="/app/api.php?act=user&method=createUser">
         <input class="form-control" type="text" name="id"
                placeholder="ID">
         <br>

@@ -17,7 +17,7 @@
     <h1>Удалить пользователя</h1>
     <form method="POST" action="/app/api.php?act=user&method=deleteUser">
         <label>
-            <input class="form-control" type="text" name="delete"
+            <input class="form-control" type="text" name="id"
                    placeholder="ID">
         </label>
         <br>

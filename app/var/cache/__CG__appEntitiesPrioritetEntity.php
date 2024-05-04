@@ -195,12 +195,12 @@ class PrioritetEntity extends \app\Entities\PrioritetEntity implements \Doctrine
     /**
      * {@inheritDoc}
      */
-    public function getPrioritet(): string
+    public function getNamePrioritet(): string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getPrioritet', []);
 
-        return parent::getPrioritet();
+        return parent::getNamePrioritet();
     }
 
 }

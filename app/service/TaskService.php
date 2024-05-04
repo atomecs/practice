@@ -35,7 +35,7 @@ class TaskService
             $taskDto->describe = $task->getDescribe();
             $taskDto->deadline = $task->getDedline();
             $taskDto->prioritetId = $task->getPrioritets()->getId();
-            $taskDto->prioritetName = $task->getPrioritets()->getPrioritet();
+            $taskDto->prioritetName = $task->getPrioritets()->getNamePrioritet();
             $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity) {return [$userEntity->getId(), $userEntity->getName()];})->toArray();
             $result[] = $taskDto;
         }
@@ -45,7 +45,7 @@ class TaskService
     public function printTasks(): array
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $result = $qb->select('t.id', 't.describe', 't.dedline', 'p.prioritet', 'u.name')
+        $result = $qb->select('t', 'u.name')
             ->from(TaskEntity::class, 't')
             ->join('t.prioritets', 'p')
             ->leftJoin('t.users', 'u')
@@ -55,7 +55,7 @@ class TaskService
     }
     public function createTask(TaskDto $taskDto): void
     {
-        if ($taskDto->id) {
+        if (isset($taskDto->id)) {
             $task = $this->entityManager->find(TaskEntity::class, $taskDto->id);
             $task->removeUser();
         } else {
@@ -68,16 +68,14 @@ class TaskService
             $task->setDedline($taskDto->deadline);
             $task->setPrioritets($priority);
             $this->entityManager->persist($task);
-            $this->entityManager->flush();
-
             foreach ($taskDto->users as $value) {
                 $user = $this->entityManager->find(UserEntity::class,$value);
                 $user->setTask($task);
                 $this->entityManager->persist($user);
-                $this->entityManager->flush();
             }
+            $this->entityManager->flush();
         } catch (Throwable $e) {
-            throw new Exception('wrong');
+            throw new Exception('Something went wrong');
         }
 
 
@@ -90,7 +88,7 @@ class TaskService
             $this->entityManager->remove($task);
             $this->entityManager->flush();
         } catch (Throwable $e) {
-            throw new Exception('wrong');
+            throw new Exception('Something went wrong');
         }
 
 
@@ -108,7 +106,7 @@ class TaskService
             <th>User</th>
           </tr>';
         $qb = $this->entityManager->createQueryBuilder();
-        $result = $qb->select('t.id', 't.describe', 't.dedline', 'p.prioritet', 'u.name')
+        $result = $qb->select('t', 'p.namePrioritet', 'u.name')
             ->from(TaskEntity::class, 't')
             ->join('t.prioritets', 'p')
             ->leftJoin('t.users', 'u')
@@ -116,10 +114,13 @@ class TaskService
         $allTasks = $result->getQuery()->getArrayResult();
         foreach ($allTasks as $task) {
             $html .= '<tr>';
-            foreach ($task as $item){
-                $html .= '<td>'.$item.'</td>';
+            $html .= '<td>'.$task[0]['id'].'</td>';
+            $html .= '<td>'.$task[0]['describe'].'</td>';
+            $html .= '<td>'.$task[0]['dedline'].'</td>';
+            $html .= '<td>'.$task['namePrioritet'].'</td>';
+            $html .= '<td>'.$task['name'].'</td>';
 
-            }
+
             $html .= '</tr>';
         }
 

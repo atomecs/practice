@@ -38,7 +38,7 @@ class UserService
 
     public function createUser(UserDto $userDto): void
     {
-        if ($userDto->id){
+        if (isset($userDto->id)){
             $users = $this->entityManager->find(UserEntity::class, $userDto->id);
         } else {
             $users = new UserEntity();
@@ -49,7 +49,7 @@ class UserService
                 $this->entityManager->persist($users);
                 $this->entityManager->flush();
             } catch (Throwable) {
-                throw new Exception('wrong');
+                throw new Exception('Something went wrong');
             }
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -66,7 +66,7 @@ class UserService
                 $this->entityManager->remove($users);
                 $this->entityManager->flush();
             } catch (Throwable) {
-                throw new Exception('wrong');
+                throw new Exception('Something went wrong');
 
             }
         } catch (Exception $e) {
