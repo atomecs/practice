@@ -30,7 +30,7 @@ class TaskController
         $this->taskService->getPdf();
     }
 
-    public function createTask(array $request): void
+    public function createOrEditTask(array $request): void
     {
         $taskDto = new TaskDto();
         $taskDto->describe = $request['describe'];
@@ -40,7 +40,7 @@ class TaskController
         if(isset($request['id'])){
             $taskDto->id = $request['id'];
         }
-        $this->taskService->createTask($taskDto);
+        $this->taskService->createOrEditTask($taskDto);
     }
 
 

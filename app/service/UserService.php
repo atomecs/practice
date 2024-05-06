@@ -36,7 +36,7 @@ class UserService
         return $result;
     }
 
-    public function createUser(UserDto $userDto): void
+    public function createOrEditUser(UserDto $userDto): void
     {
         if (isset($userDto->id)){
             $users = $this->entityManager->find(UserEntity::class, $userDto->id);

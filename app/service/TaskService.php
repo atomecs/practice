@@ -25,7 +25,7 @@ class TaskService
     }
 
 
-    public function printTasksTwo(): array
+    public function printTasks(): array
     {
         $allTasks = $this->entityManager->getRepository(TaskEntity::class)->findAll();
         $result = [];
@@ -36,13 +36,13 @@ class TaskService
             $taskDto->deadline = $task->getDedline();
             $taskDto->prioritetId = $task->getPrioritets()->getId();
             $taskDto->prioritetName = $task->getPrioritets()->getNamePrioritet();
-            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity) {return [$userEntity->getId(), $userEntity->getName()];})->toArray();
+            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity):UserDto {$userDto = new UserDto(); $userDto->id = $userEntity->getId(); $userDto->username = $userEntity->getName(); return $userDto;})->toArray();
             $result[] = $taskDto;
         }
         return $result;
     }
 
-    public function printTasks(): array
+    public function printTasksTwo(): array
     {
         $qb = $this->entityManager->createQueryBuilder();
         $result = $qb->select('t','p.namePrioritet', 'u.name')
@@ -53,7 +53,7 @@ class TaskService
         return $result->getQuery()->getArrayResult();
 
     }
-    public function createTask(TaskDto $taskDto): void
+    public function createOrEditTask(TaskDto $taskDto): void
     {
         if (isset($taskDto->id)) {
             $task = $this->entityManager->find(TaskEntity::class, $taskDto->id);
@@ -108,14 +108,31 @@ class TaskService
         $result = $this->printTasks();
         $i = 1;
         foreach ($result as $task) {
-            $html .= '<tr>';
-            $html .= '<td>'.$i.'</td>';
-            $html .= '<td>'.$task[0]['describe'].'</td>';
-            $html .= '<td>'.$task[0]['dedline'].'</td>';
-            $html .= '<td>'.$task['namePrioritet'].'</td>';
-            $html .= '<td>'.$task['name'].'</td>';
-            $html .= '</tr>';
-            $i++;
+            $count = count($task->users);
+            if ($count > 0){
+                $html .= '<tr>';
+                $html .= "<td rowspan='$count'>".$i.'</td>';
+                $html .= "<td rowspan='$count'>".$task->describe.'</td>';
+                $html .= "<td rowspan='$count'>".$task->deadline.'</td>';
+                $html .= "<td rowspan='$count'>".$task->prioritetName.'</td>';
+                $html .= "<td>".$task->users[0]->username.'</td>';
+                $html .= '</tr>';
+                if ($count > 1){
+                    $isFirst = true;
+                    foreach ($task->users as $user){
+                        if ($isFirst)
+                        {
+                            $isFirst = false;
+                            continue;
+                        }
+                        $html .= '<tr>';
+                        $html .= "<td>".$user->username.'</td>';
+                        $html .= '</tr>';
+                    }
+                }
+                $i++;
+            }
+
         }
 
         $dompdf = new Dompdf();

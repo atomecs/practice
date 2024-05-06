@@ -28,14 +28,14 @@ class UserController
         $this->userService->getPdf();
     }
 
-    public function createUser(array $request): void
+    public function createOrEditUser(array $request): void
     {
         $userDto = new UserDto;
         $userDto->username = $request['username'];
         if(isset($request['id'])){
             $userDto->id = $request['id'];
         }
-        $this->userService->createUser($userDto);
+        $this->userService->createOrEditUser($userDto);
     }
 
 

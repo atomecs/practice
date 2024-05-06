@@ -8,6 +8,7 @@ class TaskDto
     public string $deadline;
     public int $prioritetId;
     public string $prioritetName;
+
     public array $users;
 
 }
