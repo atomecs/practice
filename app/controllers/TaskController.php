@@ -36,7 +36,7 @@ class TaskController
         $taskDto->describe = $request['describe'];
         $taskDto->deadline = $request['deadline'];
         $taskDto->prioritetId = $request['prioritet'];
-        $taskDto->users = $request['user1'];
+        $taskDto->users = explode(',', $request['user1']);
         if(isset($request['id'])){
             $taskDto->id = $request['id'];
         }

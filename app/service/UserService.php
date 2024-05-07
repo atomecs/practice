@@ -17,14 +17,14 @@ class UserService
 
     public function __construct(EntityManager $entityManager)
     {
-          $this->entityManager = $entityManager;
+        $this->entityManager = $entityManager;
     }
 
 
     public function printUsers(): array
     {
 
-        $entityManager= getEntityManager();
+        $entityManager = getEntityManager();
         $users = $entityManager->getRepository(UserEntity::class)->findAll();
         $result = [];
         foreach ($users as $user) {
@@ -38,19 +38,16 @@ class UserService
 
     public function createOrEditUser(UserDto $userDto): void
     {
-        if (isset($userDto->id)){
+        if (isset($userDto->id)) {
             $users = $this->entityManager->find(UserEntity::class, $userDto->id);
         } else {
             $users = new UserEntity();
         }
         try {
-            try {
-                $users->setName($userDto->username);
-                $this->entityManager->persist($users);
-                $this->entityManager->flush();
-            } catch (Throwable) {
-                throw new Exception('Something went wrong');
-            }
+            $users->setName($userDto->username);
+            $this->entityManager->persist($users);
+            $this->entityManager->flush();
+
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -83,13 +80,13 @@ class UserService
             <th>№</th>
             <th>Name</th>
           </tr>';
-        $entityManager= getEntityManager();
+        $entityManager = getEntityManager();
         $users = $entityManager->getRepository(UserEntity::class)->findAll();
         $i = 1;
         foreach ($users as $user) {
             $html .= '<tr>';
-            $html.= '<td>'. $i.'</td>';
-            $html.= '<td>'.$user->getName().'</td>';
+            $html .= '<td>' . $i . '</td>';
+            $html .= '<td>' . $user->getName() . '</td>';
             $html .= '</tr>';
             $i++;
         }

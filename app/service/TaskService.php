@@ -36,7 +36,12 @@ class TaskService
             $taskDto->deadline = $task->getDedline();
             $taskDto->prioritetId = $task->getPrioritets()->getId();
             $taskDto->prioritetName = $task->getPrioritets()->getNamePrioritet();
-            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity):UserDto {$userDto = new UserDto(); $userDto->id = $userEntity->getId(); $userDto->username = $userEntity->getName(); return $userDto;})->toArray();
+            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity): UserDto {
+                $userDto = new UserDto();
+                $userDto->id = $userEntity->getId();
+                $userDto->username = $userEntity->getName();
+                return $userDto;
+            })->toArray();
             $result[] = $taskDto;
         }
         return $result;
@@ -45,7 +50,7 @@ class TaskService
     public function printTasksTwo(): array
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $result = $qb->select('t','p.namePrioritet', 'u.name')
+        $result = $qb->select('t', 'p.namePrioritet', 'u.name')
             ->from(TaskEntity::class, 't')
             ->join('t.prioritets', 'p')
             ->leftJoin('t.users', 'u')
@@ -53,6 +58,7 @@ class TaskService
         return $result->getQuery()->getArrayResult();
 
     }
+
     public function createOrEditTask(TaskDto $taskDto): void
     {
         if (isset($taskDto->id)) {
@@ -69,7 +75,7 @@ class TaskService
             $task->setPrioritets($priority);
             $this->entityManager->persist($task);
             foreach ($taskDto->users as $value) {
-                $user = $this->entityManager->find(UserEntity::class,$value);
+                $user = $this->entityManager->find(UserEntity::class, $value);
                 $user->setTask($task);
                 $this->entityManager->persist($user);
             }
@@ -84,7 +90,7 @@ class TaskService
     public function deleteTask(int $id): void
     {
         try {
-            $task = $this->entityManager->find(TaskEntity::class,$id);
+            $task = $this->entityManager->find(TaskEntity::class, $id);
             $this->entityManager->remove($task);
             $this->entityManager->flush();
         } catch (Throwable $e) {
@@ -109,27 +115,18 @@ class TaskService
         $i = 1;
         foreach ($result as $task) {
             $count = count($task->users);
-            if ($count > 0){
+            if ($count > 0) {
                 $html .= '<tr>';
-                $html .= "<td rowspan='$count'>".$i.'</td>';
-                $html .= "<td rowspan='$count'>".$task->describe.'</td>';
-                $html .= "<td rowspan='$count'>".$task->deadline.'</td>';
-                $html .= "<td rowspan='$count'>".$task->prioritetName.'</td>';
-                $html .= "<td>".$task->users[0]->username.'</td>';
-                $html .= '</tr>';
-                if ($count > 1){
-                    $isFirst = true;
-                    foreach ($task->users as $user){
-                        if ($isFirst)
-                        {
-                            $isFirst = false;
-                            continue;
-                        }
-                        $html .= '<tr>';
-                        $html .= "<td>".$user->username.'</td>';
-                        $html .= '</tr>';
-                    }
+                $html .= "<td rowspan='$count'>" . $i . '</td>';
+                $html .= "<td rowspan='$count'>" . $task->describe . '</td>';
+                $html .= "<td rowspan='$count'>" . $task->deadline . '</td>';
+                $html .= "<td rowspan='$count'>" . $task->prioritetName . '</td>';
+                foreach ($task->users as $user) {
+                    $html .= "<td>" . $user->username . '</td>';
+                    $html .= '</tr>';
+                    $html .= '<tr>';
                 }
+                $html .= '</tr>';
                 $i++;
             }
 

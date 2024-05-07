@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Изменить задачу</h1>
-    <form method="POST" action="/app/api.php?act=task&method=createTask">
+    <form method="POST" action="/app/api.php?act=task&method=createOrEditTask">
         <input class="form-control" type="text" name="id"
                placeholder="ID">
         <input class="form-control" type="text" name="describe"
