@@ -1,50 +1,47 @@
 <?php
 
-namespace controllers;
+namespace app\controllers;
 
-use service\UserService;
-use dto\UserDto;
+use app\dto\IdName;
+use app\service\UserService;
+use Doctrine\ORM\EntityManager;
+
 
 class UserController
 {
-    public $userService;
-    public $userDto;
+    public UserService $userService;
 
-    public function __construct()
+
+    public function __construct(EntityManager $entityManager)
     {
-        $this->userService = new UserService();
-        $this->userDto = new UserDto();
+        $this->userService = new UserService($entityManager);
+
     }
 
-    public function getPage($request)
+    public function print(): array
     {
-        var_dump($request);
-        $page = $request['page'];
-        $route = './lib/' . $page . '.php';
-        return $this->userService->getPage($route);
+        return($this->userService->print());
     }
 
-    public function printUsers($request)
+    public function getPdf():void
     {
-        return($this->userService->printUsers());
+        $this->userService->getPdf();
     }
 
-    public function createUser($request)
+    public function save(array $request): void
     {
-        $this->userDto->username = $request['username'];
-        return $this->userService->createUser($this->userDto);
+        $userDto = new IdName;
+        $userDto->name = $request['username'];
+        if(isset($request['id'])){
+            $userDto->id = $request['id'];
+        }
+        $this->userService->save($userDto);
     }
 
-    public function editUser($request)
-    {
-        $this->userDto->id = $request['id'];
-        $this->userDto->username = $request['username'];
-        return $this->userService->editUser($this->userDto);
-    }
 
-    public function deleteUser($request)
+    public function delete(array $request): void
     {
-        $this->userDto->id = $request['delete'];
-        return $this->userService->deleteUser($this->userDto);
+        $id = $request['id'];
+        $this->userService->delete($id);
     }
 }

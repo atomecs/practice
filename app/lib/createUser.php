@@ -15,7 +15,7 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Создание пользователя</h1>
-    <form method="POST" action="/app/api.php?act=user&method=createUser">
+    <form method="POST" action="/app/api.php?act=user&method=save">
         <label>
             <input class="form-control" type="text" name="username"
                    placeholder="Username">

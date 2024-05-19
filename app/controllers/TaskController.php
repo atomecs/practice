@@ -1,59 +1,55 @@
 <?php
 
-namespace controllers;
+namespace app\controllers;
 
-use service\TaskService;
-use dto\TaskDto;
-use dto\UserDto;
+use app\dto\TaskDto;
+use app\service\TaskService;
+use Doctrine\ORM\EntityManager;
 
 class TaskController
 {
     public $taskService;
-    public $taskDto;
-    public $userDto;
 
-    public function __construct()
+
+
+    public function __construct(EntityManager $entityManager)
     {
 
-        $this->taskService = new TaskService();
-        $this->taskDto = new TaskDto();
-        $this->userDto = new UserDto();
+        $this->taskService = new TaskService($entityManager);
     }
 
-    public function getPage($request)
+    public function print(): array
     {
-        $page = $request['page'];
-        $route = './lib/' . $page . '.php';
-        return $this->taskService->getPage($route);
+        return($this->taskService->print());
     }
 
-    public function printTasks()
+    public function getPdf(): void
     {
-        return($this->taskService->printTasks());
+        $this->taskService->getPdf();
     }
 
-    public function createTask($request)
+    public function save(array $request): void
     {
-        $this->taskDto->describe = $request['describe'];
-        $this->taskDto->deadline = $request['deadline'];
-        $this->taskDto->prioritetId = $request['prioritet'];
-        $this->userDto->id = explode(',', $request['user1']);
-        return $this->taskService->createTask($this->taskDto, $this->userDto);
+        $taskDto = new TaskDto();
+        $taskDto->describe = $request['describe'];
+        $taskDto->deadline = $request['deadline'];
+        $taskDto->prioritetId = $request['prioritet'];
+        $taskDto->users = explode(',', $request['user1']);
+        if(isset($request['id'])){
+            $taskDto->id = $request['id'];
+        }
+        $this->taskService->save($taskDto);
     }
 
-    public function editTask($request)
+
+    public function delete(array $request): void
     {
-        $this->taskDto->id = $request['id'];
-        $this->taskDto->describe = $request['describe'];
-        $this->taskDto->deadline = $request['deadline'];
-        $this->taskDto->prioritetId = $request['prioritet'];
-        $this->userDto->id = explode(',', $request['user1']);;
-        return $this->taskService->editTask($this->taskDto, $this->userDto);
+        $id = $request['id'];
+        $this->taskService->delete($id);
     }
 
-    public function deleteTask($request)
+    public function getPriority(): array
     {
-        $this->taskDto->id = $request['delete'];
-        return $this->taskService->deleteTask($this->taskDto);
+        return $this->taskService->getPriority();
     }
 }

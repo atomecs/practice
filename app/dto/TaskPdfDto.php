@@ -1,8 +1,9 @@
 <?php
 
 namespace app\dto;
-class TaskDto
+class TaskPdfDto
 {
+    public int $count;
     public ?int $id;
     public string $describe;
     public string $deadline;

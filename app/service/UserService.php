@@ -1,84 +1,91 @@
 <?php
 
-namespace service;
+namespace app\service;
 
-use PDO;
-use PDOException;
+use app\dto\IdName;
+use app\Entities\UserEntity;
+use Doctrine\ORM\EntityManager;
+use Dompdf\Dompdf;
+use Throwable;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class UserService
 {
 
-    public $connect;
+    public EntityManager $entityManager;
 
-    public function __construct()
+
+    public function __construct(EntityManager $entityManager)
     {
-        require_once "./config/dataBase.php";
-        $this->connect = $connect;
+          $this->entityManager = $entityManager;
     }
 
-    public function getPage($route)
+
+    public function print(): array
     {
-        if (file_exists($route)) {
-            return require_once $route;
+
+        $entityManager= getEntityManager();
+        $users = $entityManager->getRepository(UserEntity::class)->findAll();
+        $result = [];
+        foreach ($users as $user) {
+            $userDto = new IdName();
+            $userDto->id = $user->getId();
+            $userDto->name = $user->getName();
+            $result[] = $userDto;
+        }
+        return $result;
+    }
+
+    public function save(IdName $userDto): void
+    {
+        if (isset($userDto->id)){
+            $users = $this->entityManager->find(UserEntity::class, $userDto->id);
         } else {
-            return "not found";
+            $users = new UserEntity();
         }
-    }
-
-    public function printUsers()
-    {
-        $result = "SELECT * FROM users";
-        $stmt = $this->connect->query($result);
-        return json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-    }
-
-    public function createUser($userDto)
-    {
-        var_dump($userDto);
         try {
-            $query = "INSERT INTO users(fio) values (?)";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($userDto->username));
-            return "Completed";
-        } catch (PDOException $e) {
-            return $e->getMessage();
+                $users->setName($userDto->name);
+                $this->entityManager->persist($users);
+                $this->entityManager->flush();
+        } catch (Throwable $e) {
+            sendFailure($e->getMessage());
         }
-
 
     }
 
-    public function editUser($userDto)
+
+    public function delete(int $id): void
     {
         try {
-            $query = "UPDATE users SET fio=? WHERE id=?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($userDto->username, $userDto->id));
-            return "Completed";
-        } catch (PDOException $e) {
-            return $e->getMessage();
+                $users = $this->entityManager->find(UserEntity::class, $id);
+                $this->entityManager->remove($users);
+                $this->entityManager->flush();
+        } catch (Throwable $e) {
+            sendFailure($e->getMessage());
         }
+
     }
 
-    public function deleteUser($userDto)
+    public function getPdf(): void
     {
-        try {
-            $this->connect->beginTransaction();
-
-            $query = "DELETE FROM users_tasks WHERE users_id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($userDto->id));
-
-
-            $query2 = "DELETE FROM users WHERE id = ?";
-            $stmt2 = $this->connect->prepare($query2);
-            $stmt2->execute(array($userDto->id));
-
-            $this->connect->commit();
-            return "Completed";
-        } catch (PDOException $e) {
-            $this->connect->rollBack();
-            return $e->getMessage();
-
+        $loader = new FilesystemLoader('templates');
+        $twig = new Environment($loader);
+        $users = $this->entityManager->getRepository(UserEntity::class)->findAll();
+        $i = 1;
+        $result = [];
+        foreach ($users as $user) {
+            $userDto = new IdName();
+            $userDto->id = $i;
+            $userDto->name = $user->getName();
+            $result[] = $userDto;
+            $i++;
         }
+        $template = $twig->render('userTable.html', ['users' => $result]);
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($template);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream();
     }
 }

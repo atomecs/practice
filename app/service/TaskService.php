@@ -1,114 +1,140 @@
 <?php
 
-namespace service;
+namespace app\service;
 
-use PDO;
-use PDOException;
+use app\dto\IdName;
+use app\dto\TaskDto;
+use app\dto\TaskPdfDto;
+use app\Entities\PrioritetEntity;
+use app\Entities\TaskEntity;
+use app\Entities\UserEntity;
+use Doctrine\ORM\EntityManager;
+use Dompdf\Dompdf;
+use Throwable;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class TaskService
 {
 
-    public $connect;
+    public EntityManager $entityManager;
 
-    public function __construct()
+    public function __construct(EntityManager $entityManager)
     {
-        require_once "./config/dataBase.php";
-        $this->connect = $connect;
+        $this->entityManager = $entityManager;
     }
 
-    public function getPage($route)
+
+    public function print(): array
     {
-        if (file_exists($route)) {
-            return require_once $route;
-        } else {
-            return "not found";
+        $allTasks = $this->entityManager->getRepository(TaskEntity::class)->findAll();
+        $result = [];
+        foreach ($allTasks as $task) {
+            $taskDto = new TaskDto();
+            $taskDto->id = $task->getId();
+            $taskDto->describe = $task->getDescribe();
+            $taskDto->deadline = $task->getDedline();
+            $taskDto->prioritetId = $task->getPrioritets()->getId();
+            $taskDto->prioritetName = $task->getPrioritets()->getNamePrioritet();
+            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity):IdName {$userDto = new IdName(); $userDto->id = $userEntity->getId(); $userDto->name = $userEntity->getName(); return $userDto;})->toArray();
+            $result[] = $taskDto;
         }
+        return $result;
     }
 
-    public function printTasks()
+    public function printTwo(): array
     {
-        $res = "SELECT ut.tasks_id, t.describe, t.dedline, p.prioritet, u.fio
-        FROM users_tasks ut
-        JOIN tasks t ON ut.tasks_id = t.id
-        JOIN prioritets p ON t.fk_prioritet = p.id
-        JOIN users u ON u.id = ut.users_id";
-        $stmt = $this->connect->query($res);
-        return json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        $qb = $this->entityManager->createQueryBuilder();
+        $result = $qb->select('t','p.namePrioritet', 'u.name')
+            ->from(TaskEntity::class, 't')
+            ->join('t.prioritets', 'p')
+            ->leftJoin('t.users', 'u')
+            ->where('u is not null');
+        return $result->getQuery()->getArrayResult();
+
     }
 
-    public function createTask($taskDto, $userDto)
+    public function save(TaskDto $taskDto): void
     {
         try {
-            $this->connect->beginTransaction();
-            $query = "INSERT INTO tasks (describe, dedline, fk_prioritet) VALUES (?,
-?, ?)";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->describe, $taskDto->deadline, $taskDto->prioritetId));
-
-            $taskDto->id = $this->connect->lastInsertId();
-            foreach ($userDto->id as $uId) {
-                $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-                $stmt2 = $this->connect->prepare($query2);
-                $stmt2->execute(array($uId, $taskDto->id));
+            if (isset($taskDto->id)) {
+                $task = $this->entityManager->find(TaskEntity::class, $taskDto->id);
+                $task->removeUser();
+            } else {
+                $task = new TaskEntity;
             }
-            $this->connect->commit();
-            echo "Completed";
-        } catch (PDOException $e) {
-            var_dump($e->getMessage());
-            $this->connect->rollBack();
-
-
+                $priority = $this->entityManager->find(PrioritetEntity::class, $taskDto->prioritetId);
+                $task->setDescribe($taskDto->describe);
+                $task->setDedline($taskDto->deadline);
+                $task->setPrioritets($priority);
+                $this->entityManager->persist($task);
+                foreach ($taskDto->users as $value) {
+                    $user = $this->entityManager->find(UserEntity::class,$value);
+                    $user->setTask($task);
+                    $this->entityManager->persist($user);
+                }
+                $this->entityManager->flush();
+        } catch (Throwable $e) {
+            sendFailure($e->getMessage());
         }
 
 
     }
 
-    public function editTask($taskDto, $userDto)
+    public function delete(int $id): void
     {
         try {
-            $this->connect->beginTransaction();
+            $task = $this->entityManager->find(TaskEntity::class,$id);
+            $this->entityManager->remove($task);
+            $this->entityManager->flush();
+        } catch (Throwable $e) {
+            sendFailure($e->getMessage());
+        }
 
-            $query = "DELETE FROM users_tasks WHERE tasks_id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->id));
 
+    }
 
-            $query2 = "UPDATE tasks SET describe=?, dedline = ?, fk_prioritet = ? WHERE id=?";
-            $stmt = $this->connect->prepare($query2);
-            $stmt->execute(array($taskDto->describe, $taskDto->deadline, $taskDto->prioritetId, $taskDto->id));
-
-            foreach ($userDto->id as $uId) {
-                $query2 = "INSERT INTO users_tasks (users_id, tasks_id)VALUES(?,?)";
-                $stmt2 = $this->connect->prepare($query2);
-                $stmt2->execute(array($uId, $taskDto->id));
+    public function getPdf(): void
+    {
+        $loader = new FilesystemLoader('templates');
+        $twig = new Environment($loader);
+        $result = $this->print();
+        $i = 1;
+        $res = [];
+        foreach ($result as $task) {
+            $taskPdf = new TaskPdfDto();
+            if (count($task->users) > 0) {
+                $taskPdf->count = count($task->users);
+                $taskPdf->id = $i;
+                $taskPdf->describe = $task->describe;
+                $taskPdf->deadline = $task->deadline;
+                $taskPdf->prioritetName = $task->prioritetName;
+                $taskPdf->users = $task->users;
+                $i++;
+                $res[] = $taskPdf;
             }
 
-            $this->connect->commit();
-            echo "Completed";
-        } catch (PDOException $e) {
-            var_dump($e->getMessage());
-            $this->connect->rollBack();
         }
+
+        $template = $twig->render('taskTable.html', ['tasks' => $res]);
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($template);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream();
     }
 
-    public function deleteTask($taskDto)
+    public function getPriority(): array
     {
-        try {
-            $this->connect->beginTransaction();
-
-            $query = "DELETE FROM users_tasks WHERE tasks_id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->id));
-
-            $query = "DELETE FROM tasks WHERE id = ?";
-            $stmt = $this->connect->prepare($query);
-            $stmt->execute(array($taskDto->id));
-
-            $this->connect->commit();
-            echo "Completed";
-        } catch (PDOException $e) {
-            var_dump($e->getMessage());
-            $this->connect->rollBack();
+        $entityManager = getEntityManager();
+        $priorities = $entityManager->getRepository(PrioritetEntity::class)->findAll();
+        $result = [];
+        foreach ($priorities as $user) {
+            $prioritiesDto = new IdName();
+            $prioritiesDto->id = $user->getId();
+            $prioritiesDto->name = $user->getNamePrioritet();
+            $result[] = $prioritiesDto;
         }
+        return $result;
     }
 }
