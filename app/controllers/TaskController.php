@@ -3,9 +3,7 @@
 namespace app\controllers;
 
 use app\dto\TaskDto;
-use app\dto\UserDto;
 use app\service\TaskService;
-use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 
 class TaskController
@@ -20,9 +18,9 @@ class TaskController
         $this->taskService = new TaskService($entityManager);
     }
 
-    public function printTasks(): array
+    public function print(): array
     {
-        return($this->taskService->printTasks());
+        return($this->taskService->print());
     }
 
     public function getPdf(): void
@@ -30,7 +28,7 @@ class TaskController
         $this->taskService->getPdf();
     }
 
-    public function createOrEditTask(array $request): void
+    public function save(array $request): void
     {
         $taskDto = new TaskDto();
         $taskDto->describe = $request['describe'];
@@ -40,13 +38,18 @@ class TaskController
         if(isset($request['id'])){
             $taskDto->id = $request['id'];
         }
-        $this->taskService->createOrEditTask($taskDto);
+        $this->taskService->save($taskDto);
     }
 
 
-    public function deleteTask(array $request): void
+    public function delete(array $request): void
     {
         $id = $request['id'];
-        $this->taskService->deleteTask($id);
+        $this->taskService->delete($id);
+    }
+
+    public function getPriority(): array
+    {
+        return $this->taskService->getPriority();
     }
 }

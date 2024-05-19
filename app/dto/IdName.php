@@ -2,9 +2,10 @@
 
 namespace app\dto;
 
-class UserDto
+class IdName
 {
     public ?int $id;
-    public string $username;
+
+    public string $name;
 
 }

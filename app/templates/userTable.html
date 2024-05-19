@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<font face="Dejavu serif">
+    <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
+        <tr>
+            <th>№</th>
+            <th>Name</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>
+                {{ user.id }}
+            </td>
+            <td>
+                {{ user.name }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</font>
+</html>
+

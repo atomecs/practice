@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\dto\UserDto;
+use app\dto\IdName;
 use app\service\UserService;
 use Doctrine\ORM\EntityManager;
 
@@ -18,9 +18,9 @@ class UserController
 
     }
 
-    public function printUsers(): array
+    public function print(): array
     {
-        return($this->userService->printUsers());
+        return($this->userService->print());
     }
 
     public function getPdf():void
@@ -28,20 +28,20 @@ class UserController
         $this->userService->getPdf();
     }
 
-    public function createOrEditUser(array $request): void
+    public function save(array $request): void
     {
-        $userDto = new UserDto;
-        $userDto->username = $request['username'];
+        $userDto = new IdName;
+        $userDto->name = $request['username'];
         if(isset($request['id'])){
             $userDto->id = $request['id'];
         }
-        $this->userService->createOrEditUser($userDto);
+        $this->userService->save($userDto);
     }
 
 
-    public function deleteUser(array $request): void
+    public function delete(array $request): void
     {
         $id = $request['id'];
-        $this->userService->deleteUser($id);
+        $this->userService->delete($id);
     }
 }

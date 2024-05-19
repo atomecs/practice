@@ -2,12 +2,13 @@
 
 namespace app\service;
 
-use app\dto\UserDto;
+use app\dto\IdName;
+use app\Entities\UserEntity;
 use Doctrine\ORM\EntityManager;
 use Dompdf\Dompdf;
-use Exception;
-use app\Entities\UserEntity;
 use Throwable;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class UserService
 {
@@ -17,81 +18,72 @@ class UserService
 
     public function __construct(EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
+          $this->entityManager = $entityManager;
     }
 
 
-    public function printUsers(): array
+    public function print(): array
     {
 
-        $entityManager = getEntityManager();
+        $entityManager= getEntityManager();
         $users = $entityManager->getRepository(UserEntity::class)->findAll();
         $result = [];
         foreach ($users as $user) {
-            $userDto = new UserDto();
+            $userDto = new IdName();
             $userDto->id = $user->getId();
-            $userDto->username = $user->getName();
+            $userDto->name = $user->getName();
             $result[] = $userDto;
         }
         return $result;
     }
 
-    public function createOrEditUser(UserDto $userDto): void
+    public function save(IdName $userDto): void
     {
-        if (isset($userDto->id)) {
+        if (isset($userDto->id)){
             $users = $this->entityManager->find(UserEntity::class, $userDto->id);
         } else {
             $users = new UserEntity();
         }
         try {
-            $users->setName($userDto->username);
-            $this->entityManager->persist($users);
-            $this->entityManager->flush();
-
-        } catch (Exception $e) {
-            echo $e->getMessage();
+                $users->setName($userDto->name);
+                $this->entityManager->persist($users);
+                $this->entityManager->flush();
+        } catch (Throwable $e) {
+            sendFailure($e->getMessage());
         }
 
     }
 
 
-    public function deleteUser(int $id): void
+    public function delete(int $id): void
     {
         try {
-            try {
                 $users = $this->entityManager->find(UserEntity::class, $id);
                 $this->entityManager->remove($users);
                 $this->entityManager->flush();
-            } catch (Throwable) {
-                throw new Exception('Something went wrong');
-
-            }
-        } catch (Exception $e) {
-            echo $e->getMessage();
+        } catch (Throwable $e) {
+            sendFailure($e->getMessage());
         }
 
     }
 
     public function getPdf(): void
     {
-        $html = '<font face="Dejavu serif">
-        <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
-          <tr>
-            <th>№</th>
-            <th>Name</th>
-          </tr>';
-        $entityManager = getEntityManager();
-        $users = $entityManager->getRepository(UserEntity::class)->findAll();
+        $loader = new FilesystemLoader('templates');
+        $twig = new Environment($loader);
+        $users = $this->entityManager->getRepository(UserEntity::class)->findAll();
         $i = 1;
+        $result = [];
         foreach ($users as $user) {
-            $html .= '<tr>';
-            $html .= '<td>' . $i . '</td>';
-            $html .= '<td>' . $user->getName() . '</td>';
-            $html .= '</tr>';
+            $userDto = new IdName();
+            $userDto->id = $i;
+            $userDto->name = $user->getName();
+            $result[] = $userDto;
             $i++;
         }
+        $template = $twig->render('userTable.html', ['users' => $result]);
         $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
+        $dompdf->loadHtml($template);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $dompdf->stream();

@@ -1,18 +1,19 @@
 <?php
 
 
-use Doctrine\DBAL\DriverManager;
-
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
-use Doctrine\ORM\Mapping\Driver\AttributeReader;
 use Doctrine\ORM\ORMSetup;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 require_once "vendor/autoload.php";
 
+function sendFailure($e): void
+{
+    echo json_encode(['success'=>false, 'rows'=>$e]);
+    die;
+}
 
 function getEntityManager(): EntityManager
 {

@@ -2,17 +2,17 @@
 
 namespace app\service;
 
+use app\dto\IdName;
 use app\dto\TaskDto;
-use app\dto\UserDto;
+use app\dto\TaskPdfDto;
 use app\Entities\PrioritetEntity;
 use app\Entities\TaskEntity;
 use app\Entities\UserEntity;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManager;
 use Dompdf\Dompdf;
-use Error;
-use Exception;
 use Throwable;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class TaskService
 {
@@ -25,7 +25,7 @@ class TaskService
     }
 
 
-    public function printTasks(): array
+    public function print(): array
     {
         $allTasks = $this->entityManager->getRepository(TaskEntity::class)->findAll();
         $result = [];
@@ -36,21 +36,16 @@ class TaskService
             $taskDto->deadline = $task->getDedline();
             $taskDto->prioritetId = $task->getPrioritets()->getId();
             $taskDto->prioritetName = $task->getPrioritets()->getNamePrioritet();
-            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity): UserDto {
-                $userDto = new UserDto();
-                $userDto->id = $userEntity->getId();
-                $userDto->username = $userEntity->getName();
-                return $userDto;
-            })->toArray();
+            $taskDto->users = $task->getUsers()->map(function (UserEntity $userEntity):IdName {$userDto = new IdName(); $userDto->id = $userEntity->getId(); $userDto->name = $userEntity->getName(); return $userDto;})->toArray();
             $result[] = $taskDto;
         }
         return $result;
     }
 
-    public function printTasksTwo(): array
+    public function printTwo(): array
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $result = $qb->select('t', 'p.namePrioritet', 'u.name')
+        $result = $qb->select('t','p.namePrioritet', 'u.name')
             ->from(TaskEntity::class, 't')
             ->join('t.prioritets', 'p')
             ->leftJoin('t.users', 'u')
@@ -59,42 +54,41 @@ class TaskService
 
     }
 
-    public function createOrEditTask(TaskDto $taskDto): void
+    public function save(TaskDto $taskDto): void
     {
-        if (isset($taskDto->id)) {
-            $task = $this->entityManager->find(TaskEntity::class, $taskDto->id);
-            $task->removeUser();
-        } else {
-            $task = new TaskEntity;
-        }
         try {
-
-            $priority = $this->entityManager->find(PrioritetEntity::class, $taskDto->prioritetId);
-            $task->setDescribe($taskDto->describe);
-            $task->setDedline($taskDto->deadline);
-            $task->setPrioritets($priority);
-            $this->entityManager->persist($task);
-            foreach ($taskDto->users as $value) {
-                $user = $this->entityManager->find(UserEntity::class, $value);
-                $user->setTask($task);
-                $this->entityManager->persist($user);
+            if (isset($taskDto->id)) {
+                $task = $this->entityManager->find(TaskEntity::class, $taskDto->id);
+                $task->removeUser();
+            } else {
+                $task = new TaskEntity;
             }
-            $this->entityManager->flush();
+                $priority = $this->entityManager->find(PrioritetEntity::class, $taskDto->prioritetId);
+                $task->setDescribe($taskDto->describe);
+                $task->setDedline($taskDto->deadline);
+                $task->setPrioritets($priority);
+                $this->entityManager->persist($task);
+                foreach ($taskDto->users as $value) {
+                    $user = $this->entityManager->find(UserEntity::class,$value);
+                    $user->setTask($task);
+                    $this->entityManager->persist($user);
+                }
+                $this->entityManager->flush();
         } catch (Throwable $e) {
-            throw new Exception('Something went wrong');
+            sendFailure($e->getMessage());
         }
 
 
     }
 
-    public function deleteTask(int $id): void
+    public function delete(int $id): void
     {
         try {
-            $task = $this->entityManager->find(TaskEntity::class, $id);
+            $task = $this->entityManager->find(TaskEntity::class,$id);
             $this->entityManager->remove($task);
             $this->entityManager->flush();
         } catch (Throwable $e) {
-            throw new Exception('Something went wrong');
+            sendFailure($e->getMessage());
         }
 
 
@@ -102,40 +96,45 @@ class TaskService
 
     public function getPdf(): void
     {
-        $html = '<font face="Dejavu serif">
-    <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
-          <tr>
-            <th>№</th>
-            <th>Describe</th>
-            <th>Deadline</th>
-            <th>PrioritetName</th>
-            <th>User</th>
-          </tr>';
-        $result = $this->printTasks();
+        $loader = new FilesystemLoader('templates');
+        $twig = new Environment($loader);
+        $result = $this->print();
         $i = 1;
+        $res = [];
         foreach ($result as $task) {
-            $count = count($task->users);
-            if ($count > 0) {
-                $html .= '<tr>';
-                $html .= "<td rowspan='$count'>" . $i . '</td>';
-                $html .= "<td rowspan='$count'>" . $task->describe . '</td>';
-                $html .= "<td rowspan='$count'>" . $task->deadline . '</td>';
-                $html .= "<td rowspan='$count'>" . $task->prioritetName . '</td>';
-                foreach ($task->users as $user) {
-                    $html .= "<td>" . $user->username . '</td>';
-                    $html .= '</tr>';
-                    $html .= '<tr>';
-                }
-                $html .= '</tr>';
+            $taskPdf = new TaskPdfDto();
+            if (count($task->users) > 0) {
+                $taskPdf->count = count($task->users);
+                $taskPdf->id = $i;
+                $taskPdf->describe = $task->describe;
+                $taskPdf->deadline = $task->deadline;
+                $taskPdf->prioritetName = $task->prioritetName;
+                $taskPdf->users = $task->users;
                 $i++;
+                $res[] = $taskPdf;
             }
 
         }
 
+        $template = $twig->render('taskTable.html', ['tasks' => $res]);
         $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
+        $dompdf->loadHtml($template);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $dompdf->stream();
+    }
+
+    public function getPriority(): array
+    {
+        $entityManager = getEntityManager();
+        $priorities = $entityManager->getRepository(PrioritetEntity::class)->findAll();
+        $result = [];
+        foreach ($priorities as $user) {
+            $prioritiesDto = new IdName();
+            $prioritiesDto->id = $user->getId();
+            $prioritiesDto->name = $user->getNamePrioritet();
+            $result[] = $prioritiesDto;
+        }
+        return $result;
     }
 }
