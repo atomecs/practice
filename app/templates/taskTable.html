@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <font face="Dejavu serif">
+        <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
+            <tr>
+                <th>№</th>
+                <th>Describe</th>
+                <th>Deadline</th>
+                <th>PrioritetName</th>
+                <th>User</th>
+            </tr>
+            {% for task in tasks %}
+            <tr>
+                <td rowspan= "{{ task.count }}">
+                    {{ task.id }}
+                </td>
+                <td rowspan= "{{ task.count }}">
+                    {{ task.describe }}
+                </td>
+                <td rowspan= "{{ task.count }}">
+                    {{ task.deadline }}
+                </td>
+                <td rowspan= "{{ task.count }}">
+                    {{ task.prioritetName }}
+                </td>
+                {% for user in task.users %}
+                <td>
+                    {{ user.name }}
+                </td>
+                </tr>
+                <tr>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </font>
+</html>

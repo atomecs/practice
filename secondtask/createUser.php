@@ -15,31 +15,16 @@
 <body>
 <div class="container mt-4" align="center">
     <h1>Создание пользователя</h1>
-    <form method="POST" action="/cuser.php">
-        <input class="form-control" type="text" name="username"
-               placeholder="Username">
+    <form method="POST" action="createUserPhp.php">
+        <label>
+            <input class="form-control" type="text" name="username"
+                   placeholder="Username">
+        </label>
         <br>
         <button type="submit" class="btn btn-success"
-                name="submit">Продолжить</button>
+                name="submit">Продолжить
+        </button>
     </form>
 </div>
 </body>
 </html>
-<?php
-require_once('db.php');
-    $cn = pg_connect("host=localhost port=5432 dbname=train
-    user=postgres password = daniil2018");
-if (isset($_POST['submit'])) {
-    $username = $_POST['username'];
-    if (!$username) die("Please, input all
-values!");
-    $query = "INSERT INTO users(fio) 
-	 values ('$username')";
-    if($result = pg_query($query)){
-        echo "Data Added Successfully.";
-    }
-    else{
-        echo "Error.";
-    }
-}
-?>
