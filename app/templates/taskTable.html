@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <font face="Dejavu serif">
+        <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
+            <tr>
+                <th>№</th>
+                <th>Describe</th>
+                <th>Deadline</th>
+                <th>PrioritetName</th>
+                <th>User</th>
+            </tr>
+            {% set count = 1  %}
+            {% for task in tasks %}
+            {% set countUser = task.users|length  %}
+            <tr>
+                <td rowspan= "{{ countUser }}">
+                    {{ count }}
+                </td>
+                <td rowspan= "{{ countUser }}">
+                    {{ task.describe }}
+                </td>
+                <td rowspan= "{{ countUser }}">
+                    {{ task.deadline }}
+                </td>
+                <td rowspan= "{{ countUser }}">
+                    {{ task.prioritetName }}
+                </td>
+                {% for user in task.users %}
+                <td>
+                    {{ user.name }}
+                </td>
+                </tr>
+                <tr>
+                {% endfor %}
+            </tr>
+            {% set count = count+1 %}
+            {% endfor %}
+        </table>
+    </font>
+</html>

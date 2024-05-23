@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<font face="Dejavu serif">
+    <table align="center" cellspacing="2" border="1" cellpadding="5" width="300">
+        <tr>
+            <th>№</th>
+            <th>Name</th>
+        </tr>
+        {% set count = 1  %}
+        {% for user in users %}
+        <tr>
+            <td>
+                {{ count }}
+            </td>
+            <td>
+                {{ user.name }}
+            </td>
+        </tr>
+        {% set count = count+1 %}
+        {% endfor %}
+    </table>
+</font>
+</html>
+
