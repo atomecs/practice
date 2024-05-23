@@ -66,14 +66,15 @@ class TaskService
                 $task->setDeadline($taskDto->deadline);
                 $task->setPrioritets($priority);
                 $this->entityManager->persist($task);
+                $users = array_map(function ($value): UserEntity {
+                    return $this->entityManager->find(UserEntity::class, $value);
+                }, $taskDto->users);
 
-                foreach ($taskDto->users as $value) {
-                    $user = $this->entityManager->find(UserEntity::class,$value);
+                foreach ($users as $user){
                     $user->setTask($task);
                     $this->entityManager->persist($user);
+                    $this->entityManager->flush();
                 }
-
-                $this->entityManager->flush();
         } catch (Exception $e) {
             sendFailure($e->getMessage());
         }
@@ -97,9 +98,6 @@ class TaskService
         $loader = new FilesystemLoader('templates');
         $twig = new Environment($loader);
         $result = $this->print();
-        $i = 1;
-        $res = [];
-
         $template = $twig->render('taskTable.html', ['tasks' => $result]);
         $dompdf = new Dompdf();
         $dompdf->loadHtml($template);
