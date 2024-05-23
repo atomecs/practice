@@ -7,15 +7,19 @@ use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\ORMSetup;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
-require_once "vendor/autoload.php";
+require_once __DIR__."/vendor/autoload.php";
+require_once __DIR__.'/secret.php';
 
 function sendFailure($e): void
 {
-    echo json_encode(['success'=>false, 'rows'=>$e]);
-    die;
+    echo json_encode([
+        'success'=>false,
+        'rows'=>$e
+    ]);
+    exit();
 }
 
-function getEntityManager(): EntityManager
+function getEntityManager(array $dbParams): EntityManager
 {
 
     $config = new Configuration;
@@ -36,13 +40,7 @@ function getEntityManager(): EntityManager
     $config->setAutoGenerateProxyClasses(false);
 
 
-    $connectionOptions = $dbParams = array(
-        'driver' => 'pdo_pgsql',
-        'user' => 'postgres',
-        'password' => 'daniil2018',
-        'host' => 'localhost',
-        'dbname' => 'train',
-    );
+    $connectionOptions = $dbParams;
 
     return EntityManager::create($connectionOptions, $config);
 }

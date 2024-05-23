@@ -2,7 +2,7 @@
 
 namespace app\dto;
 
-class IdName
+class IdNameDto
 {
     public ?int $id;
 

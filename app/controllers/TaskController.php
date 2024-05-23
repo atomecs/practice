@@ -20,7 +20,7 @@ class TaskController
 
     public function print(): array
     {
-        return($this->taskService->print());
+        return $this->taskService->print();
     }
 
     public function getPdf(): void
@@ -34,8 +34,8 @@ class TaskController
         $taskDto->describe = $request['describe'];
         $taskDto->deadline = $request['deadline'];
         $taskDto->prioritetId = $request['prioritet'];
-        $taskDto->users = explode(',', $request['user1']);
-        if(isset($request['id'])){
+        $taskDto->users = $request['user1'];
+        if (isset($request['id'])) {
             $taskDto->id = $request['id'];
         }
         $this->taskService->save($taskDto);
@@ -44,8 +44,10 @@ class TaskController
 
     public function delete(array $request): void
     {
-        $id = $request['id'];
-        $this->taskService->delete($id);
+        if (isset($request['id'])) {
+            $id = $request['id'];
+            $this->taskService->delete($id);
+        }
     }
 
     public function getPriority(): array

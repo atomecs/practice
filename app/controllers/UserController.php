@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\dto\IdName;
+use app\dto\IdNameDto;
 use app\service\UserService;
 use Doctrine\ORM\EntityManager;
 
@@ -20,7 +20,7 @@ class UserController
 
     public function print(): array
     {
-        return($this->userService->print());
+        return $this->userService->print();
     }
 
     public function getPdf():void
@@ -30,7 +30,7 @@ class UserController
 
     public function save(array $request): void
     {
-        $userDto = new IdName;
+        $userDto = new IdNameDto;
         $userDto->name = $request['username'];
         if(isset($request['id'])){
             $userDto->id = $request['id'];
@@ -41,7 +41,10 @@ class UserController
 
     public function delete(array $request): void
     {
-        $id = $request['id'];
-        $this->userService->delete($id);
+        if (isset($request['id'])) {
+            $id = $request['id'];
+            $this->userService->delete($id);
+        }
+
     }
 }

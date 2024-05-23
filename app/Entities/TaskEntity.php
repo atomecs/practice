@@ -22,7 +22,7 @@ class TaskEntity
     private string $describe;
 
     #[ORM\Column(name: 'dedline', type: Types::STRING)]
-    private string $dedline;
+    private string $deadline;
 
 
     #[ORM\OneToOne(targetEntity: PrioritetEntity::class)]
@@ -56,14 +56,14 @@ class TaskEntity
         $this->describe = $describe;
     }
 
-    public function getDedline(): ?string
+    public function getDeadline(): ?string
     {
-        return $this->dedline;
+        return $this->deadline;
     }
 
-    public function setDedline(?string $dedline): void
+    public function setDeadline(?string $deadline): void
     {
-        $this->dedline = $dedline;
+        $this->deadline = $deadline;
     }
 
     public function getPrioritets(): ?PrioritetEntity

@@ -9,18 +9,20 @@
                 <th>PrioritetName</th>
                 <th>User</th>
             </tr>
+            {% set count = 1  %}
             {% for task in tasks %}
+            {% set countUser = task.users|length  %}
             <tr>
-                <td rowspan= "{{ task.count }}">
-                    {{ task.id }}
+                <td rowspan= "{{ countUser }}">
+                    {{ count }}
                 </td>
-                <td rowspan= "{{ task.count }}">
+                <td rowspan= "{{ countUser }}">
                     {{ task.describe }}
                 </td>
-                <td rowspan= "{{ task.count }}">
+                <td rowspan= "{{ countUser }}">
                     {{ task.deadline }}
                 </td>
-                <td rowspan= "{{ task.count }}">
+                <td rowspan= "{{ countUser }}">
                     {{ task.prioritetName }}
                 </td>
                 {% for user in task.users %}
@@ -31,6 +33,7 @@
                 <tr>
                 {% endfor %}
             </tr>
+            {% set count = count+1 %}
             {% endfor %}
         </table>
     </font>

@@ -6,15 +6,17 @@
             <th>№</th>
             <th>Name</th>
         </tr>
+        {% set count = 1  %}
         {% for user in users %}
         <tr>
             <td>
-                {{ user.id }}
+                {{ count }}
             </td>
             <td>
                 {{ user.name }}
             </td>
         </tr>
+        {% set count = count+1 %}
         {% endfor %}
     </table>
 </font>
